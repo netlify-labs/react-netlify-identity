@@ -32,6 +32,8 @@ yarn add react-netlify-identity
 
 ## Usage
 
+⚠️ **Important:** You will need to have an active Netlify site running with Netlify Identity turned on. [Click here for instructions](https://www.netlify.com/docs/identity/#getting-started) to get started/double check that it is on. We will need your site's url (e.g. `https://mysite.netlify.com`) to initialize `useNetlifyIdentity`.
+
 **As a React Hook**, you can destructure these variables and methods:
 
 - `user: User`
@@ -47,13 +49,6 @@ yarn add react-netlify-identity
 - `getFreshJWT()`
 - `authedFetch(endpoint: string, obj = {})` (a thin axios-like wrapper over `fetch` that has the user's JWT attached, for convenience pinging Netlify Functions with Netlify Identity)
 
-<details>
-<summary>
-<h3 style="color: red">
-Click to See Example code
-</h3>
-</summary>
-
 ```tsx
 import * as React from 'react';
 
@@ -61,24 +56,32 @@ import { useNetlifyIdentity } from 'react-netlify-identity';
 
 const IdentityContext = React.createContext(); // not necessary but recommended
 function App() {
-  const identity = useNetlifyIdentity(url);
+  const identity = useNetlifyIdentity(url); // supply the url of your Netlify site instance. VERY IMPORTANT
   return (
     <IdentityContext.Provider value={identity}>
       {/* rest of your app */}
     </IdentityContext.Provider>
   );
 }
+```
 
+<details>
+<summary>
+<h3 style="color: red">
+Click for More Example code
+</h3>
+</summary>
+
+```tsx
 // log in/sign up example
 function Login() {
   const { loginUser, signupUser } = React.useContext(IdentityContext);
   const formRef = React.useRef();
   const [msg, setMsg] = React.useState('');
-  const [isLoading, load] = useLoading();
   const signup = () => {
     const email = formRef.current.email.value;
     const password = formRef.current.password.value;
-    load(signupUser(email, password))
+    signupUser(email, password)
       .then(user => {
         console.log('Success! Signed up', user);
         navigate('/dashboard');
@@ -112,15 +115,11 @@ function Login() {
           <input type="password" name="password" />
         </label>
       </div>
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <div>
-          <input type="submit" value="Log in" />
-          <button onClick={signup}>Sign Up </button>
-          {msg && <pre>{msg}</pre>}
-        </div>
-      )}
+      <div>
+        <input type="submit" value="Log in" />
+        <button onClick={signup}>Sign Up </button>
+        {msg && <pre>{msg}</pre>}
+      </div>
     </form>
   );
 }
@@ -149,12 +148,10 @@ function PrivateRoute(props) {
 // use authedFetch API to make a request to Netlify Function with the user's JWT token,
 // letting your function use the `user` object
 function Dashboard() {
-  const props = React.useContext(IdentityContext);
-  const { isConfirmedUser, authedFetch } = props;
-  const [isLoading, load] = useLoading();
+  const { isConfirmedUser, authedFetch } = React.useContext(IdentityContext);
   const [msg, setMsg] = React.useState('Click to load something');
   const handler = () => {
-    load(authedFetch.get('/.netlify/functions/authEndPoint')).then(setMsg);
+    authedFetch.get('/.netlify/functions/authEndPoint').then(setMsg);
   };
   return (
     <div>
@@ -172,14 +169,16 @@ function Dashboard() {
           If you are logged in, you should be able to see a `user` info here.
         </p>
         <button onClick={handler}>Ping authenticated API</button>
-        {isLoading ? <Spinner /> : <pre>{JSON.stringify(msg, null, 2)}</pre>}
+        <pre>{JSON.stringify(msg, null, 2)}</pre>
       </div>
     </div>
   );
 }
 ```
 
-This is also exported as a render prop component, `NetlifyIdentity`, but we're not quite sure if its that useful if you can already use hooks:
+</details>
+
+**As a render prop**: This is also exported as a render prop component, `NetlifyIdentity`, but we're not quite sure if its that useful if you can already use hooks in your app:
 
 ```tsx
 <NetlifyIdentity domain="https://mydomain.netlify.com">
@@ -188,8 +187,6 @@ This is also exported as a render prop component, `NetlifyIdentity`, but we're n
   }}
 </NetlifyIdentity>
 ```
-
-</details>
 
 ## License
 
