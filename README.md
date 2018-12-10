@@ -8,7 +8,7 @@ Use [Netlify Identity](https://www.netlify.com/docs/identity/) easier with React
 
 You can find [a full demo here](https://netlify-gotrue-in-react.netlify.com/) with [source code](https://github.com/netlify/create-react-app-lambda/tree/reachRouterAndGoTrueDemo/src).
 
-**This library is not officially maintained by Netlify.** This is written by swyx for his own use (and others with like minds 😎). See below for official alternatives.
+**This library is not officially maintained by Netlify.** This is written by swyx for his own use (and others with like minds 😎) and will be maintained as a personal project unless formally adopted by Netlify. See below for official alternatives.
 
 ## Official Alternatives
 
@@ -16,7 +16,7 @@ This is a "headless" library, meaning there is no UI exported and you will write
 
 If you want to use the official Javascript bindings to GoTrue, Netlify's underlying Identity service written in Go, use https://github.com/netlify/gotrue-js
 
-If you want a "widget" overlay that gives you a nice UI out of the box, at the cost of a larger bundle, check https://github.com/netlify/netlify-identity-widget
+If you want a "widget" overlay that gives you a nice UI out of the box, with a somewhat larger bundle, check https://github.com/netlify/netlify-identity-widget
 
 If you want a popup window approach also with a nice UI out of the box, and don't mind the popup flow, check https://github.com/netlify/netlify-auth-providers
 
@@ -49,15 +49,15 @@ yarn add react-netlify-identity
 
 <details>
 <summary>
-<b>
-Example code
-</b>
+<h3 style="color: red">
+Click to See Example code
+</h3>
 </summary>
 
 ```tsx
 import * as React from 'react';
 
-import { useNetlifyIdentity } from './useNetlifyIdentity';
+import { useNetlifyIdentity } from 'react-netlify-identity';
 
 const IdentityContext = React.createContext(); // not necessary but recommended
 function App() {
