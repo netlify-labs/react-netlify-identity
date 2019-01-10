@@ -1,8 +1,4 @@
-/**
- * @class ExampleComponent
- */
-
-import * as React from 'react';
+import React from 'react';
 
 import GoTrue, { User } from 'gotrue-js';
 
@@ -119,6 +115,8 @@ export function useNetlifyIdentity(
     recoverAccount,
     updateUser,
     getFreshJWT,
-    authedFetch
+    authedFetch,
+    _authRef: authRef,
+    _domain: domain
   };
 }

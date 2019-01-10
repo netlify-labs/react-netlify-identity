@@ -1,6 +1,6 @@
 {
   "name": "react-netlify-identity",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "use netlify identity with react",
   "author": "sw-yx",
   "license": "MIT",
@@ -28,7 +28,6 @@
     "react-dom": "^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
-    "@svgr/rollup": "^2.4.1",
     "@types/jest": "^23.1.5",
     "@types/react": "^16.7.13",
     "@types/react-dom": "^16.0.11",
@@ -37,8 +36,8 @@
     "cross-env": "^5.1.4",
     "gh-pages": "^1.2.0",
     "gotrue-js": "^0.9.24",
-    "react": "^16.7.0-alpha.2",
-    "react-dom": "^16.7.0-alpha.2",
+    "react": "^16.8.0-alpha.0",
+    "react-dom": "^16.8.0-alpha.0",
     "react-scripts-ts": "^2.16.0",
     "rollup": "^0.62.0",
     "rollup-plugin-babel": "^3.0.7",
@@ -48,7 +47,7 @@
     "rollup-plugin-postcss": "^1.6.2",
     "rollup-plugin-typescript2": "^0.17.0",
     "rollup-plugin-url": "^1.4.0",
-    "typescript": "^2.8.3"
+    "typescript": "^3.2.2"
   },
   "files": [
     "dist"
