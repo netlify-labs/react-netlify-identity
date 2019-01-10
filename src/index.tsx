@@ -17,12 +17,10 @@ export function useNetlifyIdentity(
   domain: string,
   onAuthChange: authChangeParam = () => {}
 ) {
-  const authRef = React.useRef(
-    new GoTrue({
-      APIUrl: `${domain}/.netlify/identity`,
-      setCookie: true
-    })
-  );
+  const goTrueInstance = new GoTrue({
+    APIUrl: `${domain}/.netlify/identity`,
+    setCookie: true
+  });
 
   const [user, setUser] = React.useState<User | undefined>(undefined);
   const _setUser = (_user: User | undefined) => {
@@ -33,13 +31,13 @@ export function useNetlifyIdentity(
   /******* OPERATIONS */
   // make sure the Registration preferences under Identity settings in your Netlify dashboard are set to Open.
   const signupUser = (email: string, password: string, data: Object) =>
-    authRef.current.signup(email, password, data).then(_setUser); // TODO: make setUser optional?
+    goTrueInstance.signup(email, password, data).then(_setUser); // TODO: make setUser optional?
   const loginUser = (email: string, password: string) =>
-    authRef.current.login(email, password).then(_setUser);
+    goTrueInstance.login(email, password).then(_setUser);
   const requestPasswordRecovery = (email: string) =>
-    authRef.current.requestPasswordRecovery(email);
+    goTrueInstance.requestPasswordRecovery(email);
   const recoverAccount = (token: string, remember?: boolean | undefined) =>
-    authRef.current.recover(token, remember);
+    goTrueInstance.recover(token, remember);
   const updateUser = (fields: Object) => {
     if (user == null) {
       throw new Error('No current user found - are you logged in?');
@@ -90,7 +88,7 @@ export function useNetlifyIdentity(
     if (hash.slice(0, 19) === 'confirmation_token=') {
       // we are in a confirmation!
       const token = hash.slice(19);
-      authRef.current
+      goTrueInstance
         .confirm(token)
         .then(_setUser)
         .catch(console.error);
@@ -116,7 +114,7 @@ export function useNetlifyIdentity(
     updateUser,
     getFreshJWT,
     authedFetch,
-    _authRef: authRef,
+    _goTrueInstance: goTrueInstance,
     _domain: domain
   };
 }
