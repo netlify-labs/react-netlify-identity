@@ -41,7 +41,7 @@ yarn add react-netlify-identity
 - `isConfirmedUser: boolean`: if they have confirmed their email
 - `isLoggedIn: boolean`: if the user is logged in
 - `signupUser(email: string, password: string, data: Object)`
-- `loginUser(email: string, password: string)`
+- `loginUser(email: string, password: string, remember: Boolean)`
 - `logoutUser()`
 - `requestPasswordRecovery(email: string)`
 - `recoverAccount(token: string, remember?: boolean | undefined)`
@@ -95,7 +95,7 @@ function Login() {
         e.preventDefault();
         const email = e.target.email.value;
         const password = e.target.password.value;
-        load(loginUser(email, password))
+        load(loginUser(email, password, true))
           .then(user => {
             console.log('Success! Logged in', user);
             navigate('/dashboard');
