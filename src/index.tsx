@@ -29,7 +29,8 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
   // make sure the Registration preferences under Identity settings in your Netlify dashboard are set to Open.
   const signupUser = (email: string, password: string, data: Object) =>
     goTrueInstance.signup(email, password, data).then(_setUser) // TODO: make setUser optional?
-  const loginUser = (email: string, password: string) => goTrueInstance.login(email, password).then(_setUser)
+  const loginUser = (email: string, password: string, remember: boolean) =>
+    goTrueInstance.login(email, password, remember).then(_setUser)
   const requestPasswordRecovery = (email: string) => goTrueInstance.requestPasswordRecovery(email)
   const recoverAccount = (token: string, remember?: boolean | undefined) => goTrueInstance.recover(token, remember)
   const updateUser = (fields: Object) => {
