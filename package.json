@@ -1,6 +1,6 @@
 {
   "name": "react-netlify-identity",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "use netlify identity with react",
   "author": "sw-yx",
   "license": "MIT",
