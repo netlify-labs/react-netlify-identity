@@ -1,6 +1,6 @@
-import React from 'react'
+import React from "react"
 
-import GoTrue, { User } from 'gotrue-js'
+import GoTrue, { User } from "gotrue-js"
 
 type authChangeParam = (user?: User) => string | void
 
@@ -12,6 +12,7 @@ interface NIProps {
 const NetlifyIdentity = ({ children, domain, onAuthChange }: NIProps) =>
   children(useNetlifyIdentity(domain, onAuthChange))
 
+export type User = User
 export default NetlifyIdentity
 export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam = () => {}) {
   const goTrueInstance = new GoTrue({
@@ -34,7 +35,7 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
   const recoverAccount = (token: string, remember?: boolean | undefined) => goTrueInstance.recover(token, remember)
   const updateUser = (fields: Object) => {
     if (user == null) {
-      throw new Error('No current user found - are you logged in?')
+      throw new Error("No current user found - are you logged in?")
     } else {
       return user!
         .update(fields) // e.g. { email: "example@example.com", password: "password" }
@@ -42,40 +43,40 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
     }
   }
   const getFreshJWT = () => {
-    if (!user) throw new Error('No current user found - are you logged in?')
+    if (!user) throw new Error("No current user found - are you logged in?")
     return user.jwt()
   }
   const logoutUser = () => {
-    if (!user) throw new Error('No current user found - are you logged in?')
+    if (!user) throw new Error("No current user found - are you logged in?")
     return user.logout().then(() => _setUser(undefined))
   }
 
   const genericAuthedFetch = (method: string) => (endpoint: string, obj = {}) => {
-    if (!user || !user.token || !user.token.access_token) throw new Error('no user token found')
+    if (!user || !user.token || !user.token.access_token) throw new Error("no user token found")
     const defaultObj = {
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + user.token.access_token
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + user.token.access_token
       }
     }
     const finalObj = Object.assign(defaultObj, { method }, obj)
     return fetch(endpoint, finalObj).then(res =>
-      finalObj.headers['Content-Type'] === 'application/json' ? res.json() : res
+      finalObj.headers["Content-Type"] === "application/json" ? res.json() : res
     )
   }
   const authedFetch = {
-    get: genericAuthedFetch('GET'),
-    post: genericAuthedFetch('POST'),
-    put: genericAuthedFetch('PUT'),
-    delete: genericAuthedFetch('DELETE')
+    get: genericAuthedFetch("GET"),
+    post: genericAuthedFetch("POST"),
+    put: genericAuthedFetch("PUT"),
+    delete: genericAuthedFetch("DELETE")
   }
 
   // // confirmation
   // http://lea.verou.me/2011/05/get-your-hash-the-bulletproof-way/
   React.useEffect(() => {
     const hash = window.location.hash.substring(1)
-    if (hash.slice(0, 19) === 'confirmation_token=') {
+    if (hash.slice(0, 19) === "confirmation_token=") {
       // we are in a confirmation!
       const token = hash.slice(19)
       goTrueInstance
