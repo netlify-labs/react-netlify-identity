@@ -22,7 +22,7 @@
     "deploy": "gh-pages -d example/build"
   },
   "dependencies": {
-    "gotrue-js": "^0.9.24"
+    "gotrue-js": "^0.9.25"
   },
   "peerDependencies": {
     "react": "^15.0.0 || ^16.0.0",
