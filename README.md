@@ -41,7 +41,7 @@ yarn add react-netlify-identity
 - `isConfirmedUser: boolean`: if they have confirmed their email
 - `isLoggedIn: boolean`: if the user is logged in
 - `signupUser(email: string, password: string, data: Object)`
-- `loginUser(email: string, password: string, remember: Boolean)`
+- `loginUser(email: string, password: string, remember: Boolean)` - we default the `remember` term to `true` since you'll usually want to remember the session in localStorage. set it to false if you need to
 - `logoutUser()`
 - `requestPasswordRecovery(email: string)`
 - `recoverAccount(token: string, remember?: boolean | undefined)`
@@ -50,18 +50,14 @@ yarn add react-netlify-identity
 - `authedFetch(endpoint: string, obj = {})` (a thin axios-like wrapper over `fetch` that has the user's JWT attached, for convenience pinging Netlify Functions with Netlify Identity)
 
 ```tsx
-import * as React from 'react';
+import * as React from "react"
 
-import { useNetlifyIdentity } from 'react-netlify-identity';
+import { useNetlifyIdentity } from "react-netlify-identity"
 
-const IdentityContext = React.createContext(); // not necessary but recommended
+const IdentityContext = React.createContext() // not necessary but recommended
 function App() {
-  const identity = useNetlifyIdentity(url); // supply the url of your Netlify site instance. VERY IMPORTANT
-  return (
-    <IdentityContext.Provider value={identity}>
-      {/* rest of your app */}
-    </IdentityContext.Provider>
-  );
+  const identity = useNetlifyIdentity(url) // supply the url of your Netlify site instance. VERY IMPORTANT
+  return <IdentityContext.Provider value={identity}>{/* rest of your app */}</IdentityContext.Provider>
 }
 ```
 
@@ -75,32 +71,32 @@ Click for More Example code
 ```tsx
 // log in/sign up example
 function Login() {
-  const { loginUser, signupUser } = React.useContext(IdentityContext);
-  const formRef = React.useRef();
-  const [msg, setMsg] = React.useState('');
+  const { loginUser, signupUser } = React.useContext(IdentityContext)
+  const formRef = React.useRef()
+  const [msg, setMsg] = React.useState("")
   const signup = () => {
-    const email = formRef.current.email.value;
-    const password = formRef.current.password.value;
+    const email = formRef.current.email.value
+    const password = formRef.current.password.value
     signupUser(email, password)
       .then(user => {
-        console.log('Success! Signed up', user);
-        navigate('/dashboard');
+        console.log("Success! Signed up", user)
+        navigate("/dashboard")
       })
-      .catch(err => console.error(err) || setMsg('Error: ' + err.message));
-  };
+      .catch(err => console.error(err) || setMsg("Error: " + err.message))
+  }
   return (
     <form
       ref={formRef}
       onSubmit={e => {
-        e.preventDefault();
-        const email = e.target.email.value;
-        const password = e.target.password.value;
+        e.preventDefault()
+        const email = e.target.email.value
+        const password = e.target.password.value
         load(loginUser(email, password, true))
           .then(user => {
-            console.log('Success! Logged in', user);
-            navigate('/dashboard');
+            console.log("Success! Logged in", user)
+            navigate("/dashboard")
           })
-          .catch(err => console.error(err) || setMsg('Error: ' + err.message));
+          .catch(err => console.error(err) || setMsg("Error: " + err.message))
       }}
     >
       <div>
@@ -121,19 +117,19 @@ function Login() {
         {msg && <pre>{msg}</pre>}
       </div>
     </form>
-  );
+  )
 }
 
 // log out user
 function Logout() {
-  const { logoutUser } = React.useContext(IdentityContext);
-  return <button onClick={logoutUser}>You are signed in. Log Out</button>;
+  const { logoutUser } = React.useContext(IdentityContext)
+  return <button onClick={logoutUser}>You are signed in. Log Out</button>
 }
 
 // check `identity.user` in a protected route
 function PrivateRoute(props) {
-  const identity = React.useContext(IdentityContext);
-  let { as: Comp, ...rest } = props;
+  const identity = React.useContext(IdentityContext)
+  let { as: Comp, ...rest } = props
   return identity.user ? (
     <Comp {...rest} />
   ) : (
@@ -141,38 +137,35 @@ function PrivateRoute(props) {
       <h3>You are trying to view a protected page. Please log in</h3>
       <Login />
     </div>
-  );
+  )
 }
 
 // check if user has confirmed their email
 // use authedFetch API to make a request to Netlify Function with the user's JWT token,
 // letting your function use the `user` object
 function Dashboard() {
-  const { isConfirmedUser, authedFetch } = React.useContext(IdentityContext);
-  const [msg, setMsg] = React.useState('Click to load something');
+  const { isConfirmedUser, authedFetch } = React.useContext(IdentityContext)
+  const [msg, setMsg] = React.useState("Click to load something")
   const handler = () => {
-    authedFetch.get('/.netlify/functions/authEndPoint').then(setMsg);
-  };
+    authedFetch.get("/.netlify/functions/authEndPoint").then(setMsg)
+  }
   return (
     <div>
       <h3>This is a Protected Dashboard!</h3>
       {!isConfirmedUser && (
-        <pre style={{ backgroundColor: 'papayawhip' }}>
-          You have not confirmed your email. Please confirm it before you ping
-          the API.
+        <pre style={{ backgroundColor: "papayawhip" }}>
+          You have not confirmed your email. Please confirm it before you ping the API.
         </pre>
       )}
       <hr />
       <div>
         <p>You can try pinging our authenticated API here.</p>
-        <p>
-          If you are logged in, you should be able to see a `user` info here.
-        </p>
+        <p>If you are logged in, you should be able to see a `user` info here.</p>
         <button onClick={handler}>Ping authenticated API</button>
         <pre>{JSON.stringify(msg, null, 2)}</pre>
       </div>
     </div>
-  );
+  )
 }
 ```
 
