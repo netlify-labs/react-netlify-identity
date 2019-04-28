@@ -95,11 +95,6 @@ function Login({  }: MaybePathProps) {
           Google
         </button>
       )}
-      {setting && setting.external.facebook && (
-        <button className="btn" style={{ background: "darkblue" }} onClick={() => loginProvider("facebook")}>
-          Facebook
-        </button>
-      )}
     </form>
   )
 }
