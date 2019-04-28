@@ -1,7 +1,7 @@
 # example netlify.toml
 [build]
   command = "cd example && yarn && SKIP_PREFLIGHT_CHECK=true yarn build"
-  functions = "functions"
+  functions = "example/functions"
   publish = "example/build"
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app. 

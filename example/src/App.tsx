@@ -81,7 +81,7 @@ function Login({  }: MaybePathProps) {
         </button>
       )}
       {setting && setting.external.github && (
-        <button className="btn" style={{ background: "blue" }} onClick={() => loginProvider("github")}>
+        <button className="btn" style={{ background: "lightblue" }} onClick={() => loginProvider("github")}>
           GitHub
         </button>
       )}
@@ -91,7 +91,7 @@ function Login({  }: MaybePathProps) {
         </button>
       )}
       {setting && setting.external.google && (
-        <button className="btn" style={{ background: "orangered" }} onClick={() => loginProvider("google")}>
+        <button className="btn" style={{ background: "lightsalmon" }} onClick={() => loginProvider("google")}>
           Google
         </button>
       )}
