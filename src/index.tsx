@@ -9,12 +9,18 @@ interface NIProps {
   domain: string
   onAuthChange?: authChangeParam
 }
-const NetlifyIdentity = ({ children, domain, onAuthChange }: NIProps) =>
-  children(useNetlifyIdentity(domain, onAuthChange))
 
 export type User = User
-export default NetlifyIdentity
+export default function NetlifyIdentity({ children, domain, onAuthChange }: NIProps) {
+  return children(useNetlifyIdentity(domain, onAuthChange))
+}
 export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam = () => {}) {
+  if (!domain || !validateUrl(domain)) {
+    // just a safety check in case a JS user tries to skip this
+    throw new Error(
+      "invalid netlify instance URL: " + domain + ". Please check the docs for proper usage or file an issue."
+    )
+  }
   const goTrueInstance = new GoTrue({
     APIUrl: `${domain}/.netlify/identity`,
     setCookie: true
@@ -26,6 +32,13 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
     onAuthChange(_user) // if someone's subscribed to auth changes, let 'em know
     return _user // so that we can continue chaining
   }
+
+  /******* external oauth */
+  const loginExternalUrl = (provider: string) => goTrueInstance.loginExternalUrl(provider)
+  const acceptInviteExternalUrl = (provider: string, token: string) =>
+    goTrueInstance.acceptInviteExternalUrl(provider, token)
+  const settings = goTrueInstance.settings.bind(goTrueInstance)
+
   /******* OPERATIONS */
   // make sure the Registration preferences under Identity settings in your Netlify dashboard are set to Open.
   const signupUser = (email: string, password: string, data: Object) =>
@@ -107,6 +120,15 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
     getFreshJWT,
     authedFetch,
     _goTrueInstance: goTrueInstance,
-    _domain: domain
+    _domain: domain,
+    loginExternalUrl,
+    acceptInviteExternalUrl,
+    settings
   }
+}
+
+function validateUrl(value: string) {
+  return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(
+    value
+  )
 }
