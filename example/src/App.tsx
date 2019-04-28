@@ -1,7 +1,7 @@
 import React from "react"
 import { Router, Link, navigate } from "@reach/router"
 import "./App.css"
-import { useNetlifyIdentity } from "react-netlify-identity"
+import { useNetlifyIdentity, Settings } from "react-netlify-identity"
 import useLoading from "./useLoading"
 
 let IdentityContext = React.createContext<ReturnType<typeof useNetlifyIdentity>>(undefined!)
@@ -20,13 +20,14 @@ function PrivateRoute(props: React.PropsWithoutRef<MaybePathProps & { as: React.
 }
 
 function Login({  }: MaybePathProps) {
-  const { loginUser, signupUser, settings } = React.useContext(IdentityContext)
+  const { loginUser, signupUser, settings, loginProvider } = React.useContext(IdentityContext)
   const formRef = React.useRef<HTMLFormElement>(null!)
   const [msg, setMsg] = React.useState("")
   const [isLoading, load] = useLoading()
+  const [setting, setSetting] = React.useState<Settings | null>(null)
   React.useEffect(() => {
-    settings().then((...args) => console.log({ args }))
-  }, [settings])
+    settings().then(x => setSetting(x))
+  }, [])
   const signup = () => {
     const email = formRef.current.email.value
     const password = formRef.current.password.value
@@ -73,6 +74,8 @@ function Login({  }: MaybePathProps) {
           {msg && <pre>{msg}</pre>}
         </div>
       )}
+      {setting && <pre>{JSON.stringify(setting, null, 2)}</pre>}
+      {setting && setting.external.github && <div onClick={() => loginProvider("github")}>GitHub</div>}
     </form>
   )
 }

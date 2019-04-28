@@ -1,6 +1,6 @@
 import React from "react"
 
-import GoTrue, { User } from "gotrue-js"
+import GoTrue, { User, Settings } from "gotrue-js"
 
 type authChangeParam = (user?: User) => string | void
 
@@ -10,6 +10,7 @@ interface NIProps {
   onAuthChange?: authChangeParam
 }
 
+export type Settings = Settings
 export type User = User
 export default function NetlifyIdentity({ children, domain, onAuthChange }: NIProps) {
   return children(useNetlifyIdentity(domain, onAuthChange))
@@ -34,10 +35,15 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
   }
 
   /******* external oauth */
-  const loginExternalUrl = (provider: string) => goTrueInstance.loginExternalUrl(provider)
-  const acceptInviteExternalUrl = (provider: string, token: string) =>
+  type Provider = "bitbucket" | "facebook" | "github" | "gitlab" | "google"
+
+  const loginProvider = (provider: Provider) => {
+    const url = goTrueInstance.loginExternalUrl(provider)
+    if (window) window.location.href = url
+  }
+  const acceptInviteExternalUrl = (provider: Provider, token: string) =>
     goTrueInstance.acceptInviteExternalUrl(provider, token)
-  const settings = goTrueInstance.settings.bind(goTrueInstance)
+  const settings: () => Promise<Settings> = goTrueInstance.settings.bind(goTrueInstance)
 
   /******* OPERATIONS */
   // make sure the Registration preferences under Identity settings in your Netlify dashboard are set to Open.
@@ -121,7 +127,7 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
     authedFetch,
     _goTrueInstance: goTrueInstance,
     _domain: domain,
-    loginExternalUrl,
+    loginProvider,
     acceptInviteExternalUrl,
     settings
   }
