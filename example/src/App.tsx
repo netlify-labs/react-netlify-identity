@@ -27,7 +27,7 @@ function Login({  }: MaybePathProps) {
   const [setting, setSetting] = React.useState<Settings | null>(null)
   React.useEffect(() => {
     settings().then(x => setSetting(x))
-  }, [])
+  }, [settings])
   const signup = () => {
     const email = formRef.current.email.value
     const password = formRef.current.password.value

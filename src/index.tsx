@@ -1,6 +1,7 @@
 import React from "react"
 
 import GoTrue, { User, Settings } from "gotrue-js"
+import { runRoutes } from "./runRoutes"
 
 type authChangeParam = (user?: User) => string | void
 
@@ -16,6 +17,7 @@ export default function NetlifyIdentity({ children, domain, onAuthChange }: NIPr
   return children(useNetlifyIdentity(domain, onAuthChange))
 }
 export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam = () => {}) {
+  /******** SETUP */
   if (!domain || !validateUrl(domain)) {
     // just a safety check in case a JS user tries to skip this
     throw new Error(
@@ -34,6 +36,13 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
     return _user // so that we can continue chaining
   }
 
+  React.useEffect(() => {
+    runRoutes(goTrueInstance, _setUser)
+  }, [])
+
+  /******* OPERATIONS */
+  // make sure the Registration preferences under Identity settings in your Netlify dashboard are set to Open.
+  // https://react-netlify-identity.netlify.com/login#access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTY0ODY3MjEsInN1YiI6ImNiZjY5MTZlLTNlZGYtNGFkNS1iOTYzLTQ4ZTY2NDcyMDkxNyIsImVtYWlsIjoic2hhd250aGUxQGdtYWlsLmNvbSIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImdpdGh1YiJ9LCJ1c2VyX21ldGFkYXRhIjp7ImF2YXRhcl91cmwiOiJodHRwczovL2F2YXRhcnMxLmdpdGh1YnVzZXJjb250ZW50LmNvbS91LzY3NjQ5NTc_dj00IiwiZnVsbF9uYW1lIjoic3d5eCJ9fQ.E8RrnuCcqq-mLi1_Q5WHJ-9THIdQ3ha1mePBKGhudM0&expires_in=3600&refresh_token=OyA_EdRc7WOIVhY7RiRw5w&token_type=bearer
   /******* external oauth */
   type Provider = "bitbucket" | "facebook" | "github" | "gitlab" | "google"
 
@@ -45,8 +54,7 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
     goTrueInstance.acceptInviteExternalUrl(provider, token)
   const settings: () => Promise<Settings> = goTrueInstance.settings.bind(goTrueInstance)
 
-  /******* OPERATIONS */
-  // make sure the Registration preferences under Identity settings in your Netlify dashboard are set to Open.
+  /******* email auth */
   const signupUser = (email: string, password: string, data: Object) =>
     goTrueInstance.signup(email, password, data).then(_setUser) // TODO: make setUser optional?
   const loginUser = (email: string, password: string, remember: boolean = true) =>
@@ -91,25 +99,6 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
     put: genericAuthedFetch("PUT"),
     delete: genericAuthedFetch("DELETE")
   }
-
-  // // confirmation
-  // http://lea.verou.me/2011/05/get-your-hash-the-bulletproof-way/
-  React.useEffect(() => {
-    const hash = window.location.hash.substring(1)
-    if (hash.slice(0, 19) === "confirmation_token=") {
-      // we are in a confirmation!
-      const token = hash.slice(19)
-      goTrueInstance
-        .confirm(token)
-        .then(_setUser)
-        .catch(console.error)
-      // .then(
-      //   () =>
-      //     (window.location =
-      //       window.location.origin + window.location.pathname) // strip hash
-      // )
-    }
-  }, [])
 
   /******* hook API */
   return {
