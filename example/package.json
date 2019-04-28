@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@reach/router": "^1.2.1",
-    "react-netlify-identity": "^0.0.13",
+    "react-netlify-identity": "latest",
     "react-scripts": "3.0.0",
     "typescript": "3.4.5"
   },
