@@ -75,7 +75,31 @@ function Login({  }: MaybePathProps) {
         </div>
       )}
       {setting && <pre>{JSON.stringify(setting, null, 2)}</pre>}
-      {setting && setting.external.github && <div onClick={() => loginProvider("github")}>GitHub</div>}
+      {setting && setting.external.bitbucket && (
+        <button className="btn" onClick={() => loginProvider("bitbucket")}>
+          bitbucket
+        </button>
+      )}
+      {setting && setting.external.github && (
+        <button className="btn" style={{ background: "blue" }} onClick={() => loginProvider("github")}>
+          GitHub
+        </button>
+      )}
+      {setting && setting.external.gitlab && (
+        <button className="btn" style={{ background: "darkgreen" }} onClick={() => loginProvider("gitlab")}>
+          Gitlab
+        </button>
+      )}
+      {setting && setting.external.google && (
+        <button className="btn" style={{ background: "orangered" }} onClick={() => loginProvider("google")}>
+          Google
+        </button>
+      )}
+      {setting && setting.external.facebook && (
+        <button className="btn" style={{ background: "darkblue" }} onClick={() => loginProvider("facebook")}>
+          Facebook
+        </button>
+      )}
     </form>
   )
 }
