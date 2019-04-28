@@ -1,6 +1,6 @@
 # example netlify.toml
 [build]
-  command = "cd example && yarn && yarn build"
+  command = "cd example && yarn && SKIP_PREFLIGHT_CHECK=true yarn build"
   functions = "functions"
   publish = "example/build"
 
