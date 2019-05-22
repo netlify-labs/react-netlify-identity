@@ -30,10 +30,13 @@ export function runRoutes(gotrue: GoTrue, setUser: (value: User) => User | undef
   const am = hash.match(accessTokenRoute)
   if (am) {
     const params = {}
-    hash.split("&").forEach(pair => {
+    hash.split("&").forEach((pair) => {
       const [key, value] = pair.split("=")
       params[key] = value
     })
+    if (!!document && params["access_token"]) {
+      document.cookie = `nf_jwt=${params["access_token"]}`
+    }
     document.location.hash = ""
     // store.openModal("login");
     // store.completeExternalLogin(params);
@@ -46,7 +49,7 @@ export function runRoutes(gotrue: GoTrue, setUser: (value: User) => User | undef
   const cm = hash.match(confirmationRoute)
   if (cm) {
     const params = {}
-    hash.split("&").forEach(pair => {
+    hash.split("&").forEach((pair) => {
       const [key, value] = pair.split("=")
       params[key] = value
     })
