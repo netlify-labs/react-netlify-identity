@@ -81,25 +81,25 @@ function Login() {
     const email = formRef.current.email.value
     const password = formRef.current.password.value
     signupUser(email, password)
-      .then(user => {
+      .then((user) => {
         console.log("Success! Signed up", user)
         navigate("/dashboard")
       })
-      .catch(err => console.error(err) || setMsg("Error: " + err.message))
+      .catch((err) => console.error(err) || setMsg("Error: " + err.message))
   }
   return (
     <form
       ref={formRef}
-      onSubmit={e => {
+      onSubmit={(e) => {
         e.preventDefault()
         const email = e.target.email.value
         const password = e.target.password.value
         load(loginUser(email, password, true))
-          .then(user => {
+          .then((user) => {
             console.log("Success! Logged in", user)
             navigate("/dashboard")
           })
-          .catch(err => console.error(err) || setMsg("Error: " + err.message))
+          .catch((err) => console.error(err) || setMsg("Error: " + err.message))
       }}
     >
       <div>
@@ -173,16 +173,6 @@ function Dashboard() {
 ```
 
 </details>
-
-**As a render prop**: This is also exported as a render prop component, `NetlifyIdentity`, but we're not quite sure if its that useful if you can already use hooks in your app:
-
-```tsx
-<NetlifyIdentity domain="https://mydomain.netlify.com">
-  {({ loginUser, signupUser }) => {
-    // use it
-  }}
-</NetlifyIdentity>
-```
 
 ## License
 

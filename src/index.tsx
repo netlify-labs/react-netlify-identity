@@ -5,27 +5,68 @@ import { runRoutes } from "./runRoutes"
 
 type authChangeParam = (user?: User) => string | void
 
-interface NIProps {
-  children: any
-  domain: string
-  onAuthChange?: authChangeParam
-}
-
 export type Settings = Settings
 export type User = User
-export default function NetlifyIdentity({ children, domain, onAuthChange }: NIProps) {
-  return children(useNetlifyIdentity(domain, onAuthChange))
+
+export type ReactNetlifyIdentityAPI = {
+  user: User | undefined
+  /** not meant for normal use! you should mostly use one of the other exported methods to update the user instance */
+  setUser: React.Dispatch<React.SetStateAction<User | undefined>>
+  isConfirmedUser: boolean
+  isLoggedIn: boolean
+  signupUser: (email: string, password: string, data: Object) => Promise<User | undefined>
+  loginUser: (email: string, password: string, remember?: boolean) => Promise<User | undefined>
+  logoutUser: () => Promise<User | undefined>
+  requestPasswordRecovery: (email: string) => Promise<void>
+  recoverAccount: (token: string, remember?: boolean | undefined) => Promise<User>
+  updateUser: (fields: Object) => Promise<User | undefined>
+  getFreshJWT: () => Promise<string>
+  authedFetch: {
+    get: (endpoint: string, obj?: {}) => Promise<any>
+    post: (endpoint: string, obj?: {}) => Promise<any>
+    put: (endpoint: string, obj?: {}) => Promise<any>
+    delete: (endpoint: string, obj?: {}) => Promise<any>
+  }
+  _goTrueInstance: GoTrue
+  _url: string
+  loginProvider: (provider: "bitbucket" | "github" | "gitlab" | "google") => void
+  acceptInviteExternalUrl: (provider: "bitbucket" | "github" | "gitlab" | "google", token: string) => string
+  settings: () => Promise<Settings>
 }
-export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam = () => {}) {
+
+export const IdentityContext = React.createContext<ReactNetlifyIdentityAPI | undefined>(undefined)
+export function IdentityContextProvider({
+  url,
+  children,
+  onAuthChange = () => {}
+}: {
+  url: string
+  children: React.ReactNode
+  onAuthChange: authChangeParam
+}) {
   /******** SETUP */
-  if (!domain || !validateUrl(domain)) {
+  if (!url || !validateUrl(url)) {
     // just a safety check in case a JS user tries to skip this
     throw new Error(
-      "invalid netlify instance URL: " + domain + ". Please check the docs for proper usage or file an issue."
+      "invalid netlify instance URL: " + url + ". Please check the docs for proper usage or file an issue."
     )
   }
+  const identity = React.useMemo(() => useNetlifyIdentity(url, onAuthChange), [url, onAuthChange])
+  return <IdentityContext.Provider value={identity}>{children}</IdentityContext.Provider>
+}
+
+// // Deprecated for now
+// interface NIProps {
+//   children: any
+//   url: string
+//   onAuthChange?: authChangeParam
+// }
+// export default function NetlifyIdentity({ children, url, onAuthChange }: NIProps) {
+//   return children(useNetlifyIdentity(url, onAuthChange))
+// }
+export function useNetlifyIdentity(url: string, onAuthChange: authChangeParam = () => {}): ReactNetlifyIdentityAPI {
   const goTrueInstance = new GoTrue({
-    APIUrl: `${domain}/.netlify/identity`,
+    APIUrl: `${url}/.netlify/identity`,
     setCookie: true
   })
 
@@ -48,7 +89,7 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
 
   const loginProvider = (provider: Provider) => {
     const url = goTrueInstance.loginExternalUrl(provider)
-    if (window) window.location.href = url
+    window.location.href = url
   }
   const acceptInviteExternalUrl = (provider: Provider, token: string) =>
     goTrueInstance.acceptInviteExternalUrl(provider, token)
@@ -89,7 +130,7 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
       }
     }
     const finalObj = Object.assign(defaultObj, { method }, obj)
-    return fetch(endpoint, finalObj).then(res =>
+    return fetch(endpoint, finalObj).then((res) =>
       finalObj.headers["Content-Type"] === "application/json" ? res.json() : res
     )
   }
@@ -103,7 +144,8 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
   /******* hook API */
   return {
     user,
-    setUser, // use carefully!! mostly you should use the methods below
+    /** not meant for normal use! you should mostly use one of the other exported methods to update the user instance */
+    setUser,
     isConfirmedUser: !!(user && user.confirmed_at),
     isLoggedIn: !!user,
     signupUser,
@@ -115,7 +157,7 @@ export function useNetlifyIdentity(domain: string, onAuthChange: authChangeParam
     getFreshJWT,
     authedFetch,
     _goTrueInstance: goTrueInstance,
-    _domain: domain,
+    _url: url,
     loginProvider,
     acceptInviteExternalUrl,
     settings
