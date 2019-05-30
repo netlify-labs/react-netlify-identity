@@ -37,7 +37,7 @@ yarn add react-netlify-identity
 
 ⚠️ **Important:** You will need to have an active Netlify site running with Netlify Identity turned on. [Click here for instructions](https://www.netlify.com/docs/identity/#getting-started) to get started/double check that it is on. We will need your site's url (e.g. `https://mysite.netlify.com`) to initialize `IdentityContextProvider`.
 
-**When you call useIdentityCtx()**, you can destructure these variables and methods:
+**When you call useIdentityContext()**, you can destructure these variables and methods:
 
 - `user: User`
 - `setUser`: directly set the user object. Not advised; use carefully!! mostly you should use the methods below
@@ -58,7 +58,7 @@ import React from 'react';
 import { IdentityContextProvider } from 'react-netlify-identity';
 
 function App() {
-  const url = process.env.NETLIFY_URL; // supply the url of your Netlify site instance. VERY IMPORTANT
+  const url = process.env.REACT_APP_NETLIFY_URL; // supply the url of your Netlify site instance. VERY IMPORTANT
   return (
     <IdentityContextProvider url={url}>
       {/* rest of your app */}
@@ -75,9 +75,11 @@ Click for More Example code
 </summary>
 
 ```tsx
+import { useIdentityContext } from 'react-netlify-identity';
+
 // log in/sign up example
 function Login() {
-  const { loginUser, signupUser } = useIdentityCtx();
+  const { loginUser, signupUser } = useIdentityContext();
   const formRef = React.useRef();
   const [msg, setMsg] = React.useState('');
   const signup = () => {
@@ -128,13 +130,13 @@ function Login() {
 
 // log out user
 function Logout() {
-  const { logoutUser } = useIdentityCtx();
+  const { logoutUser } = useIdentityContext();
   return <button onClick={logoutUser}>You are signed in. Log Out</button>;
 }
 
 // check `identity.user` in a protected route
 function PrivateRoute(props) {
-  const identity = useIdentityCtx();
+  const identity = useIdentityContext();
   let { as: Comp, ...rest } = props;
   return identity.user ? (
     <Comp {...rest} />
@@ -150,7 +152,7 @@ function PrivateRoute(props) {
 // use authedFetch API to make a request to Netlify Function with the user's JWT token,
 // letting your function use the `user` object
 function Dashboard() {
-  const { isConfirmedUser, authedFetch } = useIdentityCtx();
+  const { isConfirmedUser, authedFetch } = useIdentityContext();
   const [msg, setMsg] = React.useState('Click to load something');
   const handler = () => {
     authedFetch.get('/.netlify/functions/authEndPoint').then(setMsg);

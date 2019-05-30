@@ -63,10 +63,10 @@ export type ReactNetlifyIdentityAPI = {
   settings: Settings;
 };
 
-const [_useIdentityCtx, _IdentityCtxProvider] = createCtx<
+const [_useIdentityContext, _IdentityCtxProvider] = createCtx<
   ReactNetlifyIdentityAPI
 >();
-export const useIdentityCtx = _useIdentityCtx; // we dont want to expose _IdentityCtxProvider
+export const useIdentityContext = _useIdentityContext; // we dont want to expose _IdentityCtxProvider
 
 /** most people should use this provider directly */
 export function IdentityContextProvider({

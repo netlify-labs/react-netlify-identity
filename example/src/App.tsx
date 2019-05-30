@@ -2,7 +2,7 @@ import React from 'react';
 import { Router, Link, navigate } from '@reach/router';
 import './App.css';
 import {
-  useIdentityCtx,
+  useIdentityContext,
   IdentityContextProvider,
   // Settings,
 } from 'react-netlify-identity';
@@ -14,7 +14,7 @@ function PrivateRoute(
     MaybePathProps & { as: React.ComponentType<MaybePathProps> }
   >
 ) {
-  const identity = useIdentityCtx();
+  const identity = useIdentityContext();
   let { as: Comp } = props;
   return identity.user ? (
     <Comp />
@@ -28,7 +28,12 @@ function PrivateRoute(
 
 // eslint-disable-next-line
 function Login({  }: MaybePathProps) {
-  const { loginUser, signupUser, settings, loginProvider } = useIdentityCtx();
+  const {
+    loginUser,
+    signupUser,
+    settings,
+    loginProvider,
+  } = useIdentityContext();
   const formRef = React.useRef<HTMLFormElement>(null!);
   const [msg, setMsg] = React.useState('');
   const [isLoading, load] = useLoading();
@@ -154,7 +159,7 @@ function About({  }: MaybePathProps) {
 }
 // eslint-disable-next-line
 function Dashboard({  }: MaybePathProps) {
-  const props = useIdentityCtx();
+  const props = useIdentityContext();
   const { isConfirmedUser, authedFetch } = props;
   const [isLoading, load] = useLoading();
   const [msg, setMsg] = React.useState('Click to load something');
@@ -194,7 +199,7 @@ function Spinner() {
   );
 }
 function Nav() {
-  const { isLoggedIn } = useIdentityCtx();
+  const { isLoggedIn } = useIdentityContext();
   return (
     <nav>
       <Link to="/">Home</Link> | <Link to="dashboard">Dashboard</Link>
@@ -206,7 +211,7 @@ function Nav() {
   );
 }
 function Logout() {
-  const { logoutUser } = useIdentityCtx();
+  const { logoutUser } = useIdentityContext();
   return <button onClick={logoutUser}>You are signed in. Log Out</button>;
 }
 
