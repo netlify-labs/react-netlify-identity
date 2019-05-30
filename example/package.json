@@ -12,7 +12,7 @@
     "react": "latest",
     "react-app-polyfill": "^1.0.1",
     "react-dom": "latest",
-    "react-netlify-identity": "^0.1.1"
+    "react-netlify-identity": "^0.1.3"
   },
   "devDependencies": {
     "@types/reach__router": "^1.2.4",
