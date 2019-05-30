@@ -8,6 +8,19 @@ type authChangeParam = (user?: User) => string | void;
 export type Settings = Settings;
 export type User = User;
 
+const defaultSettings = {
+  autoconfirm: false,
+  disable_signup: false,
+  external: {
+    bitbucket: false,
+    email: true,
+    facebook: false,
+    github: false,
+    gitlab: false,
+    google: false,
+  },
+};
+
 export type ReactNetlifyIdentityAPI = {
   user: User | undefined;
   /** not meant for normal use! you should mostly use one of the other exported methods to update the user instance */
@@ -47,7 +60,7 @@ export type ReactNetlifyIdentityAPI = {
     provider: 'bitbucket' | 'github' | 'gitlab' | 'google',
     token: string
   ) => string;
-  settings: () => Promise<Settings>;
+  settings: Settings;
 };
 
 const [_useIdentityCtx, _IdentityCtxProvider] = createCtx<
@@ -74,10 +87,7 @@ export function IdentityContextProvider({
         '. Please check the docs for proper usage or file an issue.'
     );
   }
-  const identity = React.useMemo(() => useNetlifyIdentity(url, onAuthChange), [
-    url,
-    onAuthChange,
-  ]);
+  const identity = useNetlifyIdentity(url, onAuthChange);
   return (
     <_IdentityCtxProvider value={identity}>{children}</_IdentityCtxProvider>
   );
@@ -118,9 +128,11 @@ export function useNetlifyIdentity(
   };
   const acceptInviteExternalUrl = (provider: Provider, token: string) =>
     goTrueInstance.acceptInviteExternalUrl(provider, token);
-  const settings: () => Promise<Settings> = goTrueInstance.settings.bind(
-    goTrueInstance
-  );
+  const _settings = goTrueInstance.settings.bind(goTrueInstance);
+  const [settings, setSettings] = React.useState<Settings>(defaultSettings);
+  React.useEffect(() => {
+    _settings().then(x => setSettings(x));
+  }, [settings]);
 
   /******* email auth */
   const signupUser = (email: string, password: string, data: Object) =>
