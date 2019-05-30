@@ -1,41 +1,29 @@
 {
   "name": "example",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
   "dependencies": {
     "@reach/router": "^1.2.1",
+    "react-app-polyfill": "^1.0.1",
     "react-netlify-identity": "latest",
-    "react-scripts": "3.0.0",
+    "react": "latest",
+    "react-dom": "latest",
     "typescript": "3.4.5"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
-    "@types/jest": "24.0.11",
-    "@types/node": "11.13.8",
     "@types/reach__router": "^1.2.4",
-    "@types/react": "16.8.14",
-    "@types/react-dom": "16.8.4",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6"
-  }
+    "@types/react": "^16.8.15",
+    "@types/react-dom": "^16.8.4",
+    "parcel": "^1.12.3",
+    "typescript": "^3.4.5"
+  },
+  "browserslist": [
+    "last 1 chrome version",
+    "not dead"
+  ]
 }
