@@ -58,7 +58,7 @@ import React from 'react';
 import { IdentityContextProvider } from 'react-netlify-identity';
 
 function App() {
-  const url = process.env.REACT_APP_NETLIFY_URL; // supply the url of your Netlify site instance. VERY IMPORTANT
+  const url = 'https://your-identity-instance.netlify.com/'; // supply the url of your Netlify site instance. VERY IMPORTANT. no point putting in env var since this is public anyway
   return (
     <IdentityContextProvider url={url}>
       {/* rest of your app */}
