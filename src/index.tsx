@@ -98,10 +98,14 @@ export function useNetlifyIdentity(
   url: string,
   onAuthChange: authChangeParam = () => {}
 ): ReactNetlifyIdentityAPI {
-  const goTrueInstance = new GoTrue({
-    APIUrl: `${url}/.netlify/identity`,
-    setCookie: true,
-  });
+  const goTrueInstance = React.useMemo(
+    () =>
+      new GoTrue({
+        APIUrl: `${url}/.netlify/identity`,
+        setCookie: true,
+      }),
+    [url]
+  );
 
   const [user, setUser] = React.useState<User | undefined>(
     goTrueInstance.currentUser() || undefined
