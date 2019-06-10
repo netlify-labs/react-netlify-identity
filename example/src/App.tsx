@@ -265,6 +265,7 @@ function App() {
           <PrivateRoute as={Dashboard} path="/dashboard" />
         </Router>
       </div>
+      <footer>last updated react-netlify-identity v0.1.7</footer>
     </IdentityContextProvider>
   );
 }
