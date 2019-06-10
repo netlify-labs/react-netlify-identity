@@ -132,7 +132,7 @@ export function useNetlifyIdentity(
   const [settings, setSettings] = React.useState<Settings>(defaultSettings);
   React.useEffect(() => {
     _settings().then(x => setSettings(x));
-  }, [settings]);
+  }, [_settings]);
 
   /******* email auth */
   const signupUser = (email: string, password: string, data: Object) =>
