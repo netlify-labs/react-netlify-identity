@@ -87,7 +87,10 @@ export function IdentityContextProvider({
         '. Please check the docs for proper usage or file an issue.'
     );
   }
-  const identity = useNetlifyIdentity(url, onAuthChange);
+  const identity = React.useMemo(() => useNetlifyIdentity(url, onAuthChange), [
+    url,
+    onAuthChange,
+  ]);
   return (
     <_IdentityCtxProvider value={identity}>{children}</_IdentityCtxProvider>
   );
@@ -98,14 +101,10 @@ export function useNetlifyIdentity(
   url: string,
   onAuthChange: authChangeParam = () => {}
 ): ReactNetlifyIdentityAPI {
-  const goTrueInstance = React.useMemo(
-    () =>
-      new GoTrue({
-        APIUrl: `${url}/.netlify/identity`,
-        setCookie: true,
-      }),
-    [url]
-  );
+  const goTrueInstance = new GoTrue({
+    APIUrl: `${url}/.netlify/identity`,
+    setCookie: true,
+  });
 
   const [user, setUser] = React.useState<User | undefined>(
     goTrueInstance.currentUser() || undefined
