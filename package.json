@@ -17,7 +17,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
-    "prepare": "yarn run build",
+    "unused_prepare": "yarn run build",
     "version": "yarn run build && auto-changelog -p --template keepachangelog && git add .",
     "prepublishOnly": "git push && git push --tags && gh-release",
     "predeploy": "cd example && yarn install && yarn run build",
