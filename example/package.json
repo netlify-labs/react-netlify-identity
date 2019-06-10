@@ -14,6 +14,12 @@
     "react-dom": "^16.8.6",
     "react-netlify-identity": "latest"
   },
+  "alias": {
+    "react": "../node_modules/react",
+    "react-dom": "../node_modules/react-dom/profiling",
+    "react-dom$": "../node_modules/react-dom/profiling",
+    "scheduler/tracing": "../node_modules/scheduler/tracing-profiling"
+  },
   "devDependencies": {
     "@types/reach__router": "^1.2.4",
     "@types/react": "^16.8.15",
