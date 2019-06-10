@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@reach/router": "^1.2.1",
-    "react": "latest",
+    "react": "^16.8.6",
     "react-app-polyfill": "^1.0.1",
-    "react-dom": "latest",
+    "react-dom": "^16.8.6",
     "react-netlify-identity": "latest"
   },
   "devDependencies": {
