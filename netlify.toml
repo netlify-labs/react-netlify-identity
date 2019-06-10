@@ -1,6 +1,6 @@
 # example netlify.toml
 [build]
-  command = "cd example && yarn && SKIP_PREFLIGHT_CHECK=true yarn build"
+  command = "cd example && cp public/_redirects dist/_redirects && yarn && SKIP_PREFLIGHT_CHECK=true yarn build"
   functions = "example/functions"
   publish = "example/dist"
 
