@@ -72,7 +72,7 @@ export const useIdentityContext = _useIdentityContext; // we dont want to expose
 export function IdentityContextProvider({
   url,
   children,
-  onAuthChange = () => {},
+  onAuthChange = () => { },
 }: {
   url: string;
   children: React.ReactNode;
@@ -83,8 +83,8 @@ export function IdentityContextProvider({
     // just a safety check in case a JS user tries to skip this
     throw new Error(
       'invalid netlify instance URL: ' +
-        url +
-        '. Please check the docs for proper usage or file an issue.'
+      url +
+      '. Please check the docs for proper usage or file an issue.'
     );
   }
   const identity = React.useMemo(() => useNetlifyIdentity(url, onAuthChange), [
@@ -99,7 +99,7 @@ export function IdentityContextProvider({
 /** some people may want to use this as a hook and bring their own contexts */
 export function useNetlifyIdentity(
   url: string,
-  onAuthChange: authChangeParam = () => {}
+  onAuthChange: authChangeParam = () => { }
 ): ReactNetlifyIdentityAPI {
   const goTrueInstance = new GoTrue({
     APIUrl: `${url}/.netlify/identity`,
@@ -114,10 +114,6 @@ export function useNetlifyIdentity(
     onAuthChange(_user); // if someone's subscribed to auth changes, let 'em know
     return _user; // so that we can continue chaining
   };
-
-  React.useEffect(() => {
-    runRoutes(goTrueInstance, _setUser);
-  }, []);
 
   /******* OPERATIONS */
   // make sure the Registration preferences under Identity settings in your Netlify dashboard are set to Open.
