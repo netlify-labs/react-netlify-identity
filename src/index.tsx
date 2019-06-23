@@ -99,7 +99,8 @@ export function IdentityContextProvider({
 /** some people may want to use this as a hook and bring their own contexts */
 export function useNetlifyIdentity(
   url: string,
-  onAuthChange: authChangeParam = () => {}
+  onAuthChange: authChangeParam = () => {},
+  enableRunRoutes: boolean = true
 ): ReactNetlifyIdentityAPI {
   const goTrueInstance = new GoTrue({
     APIUrl: `${url}/.netlify/identity`,
@@ -116,7 +117,9 @@ export function useNetlifyIdentity(
   };
 
   React.useEffect(() => {
-    runRoutes(goTrueInstance, _setUser);
+    if (enableRunRoutes) {
+      runRoutes(goTrueInstance, _setUser);
+    }
   }, []);
 
   /******* OPERATIONS */
