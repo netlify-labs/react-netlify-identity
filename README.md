@@ -182,6 +182,20 @@ function Dashboard() {
 
 </details>
 
+## Lower level API: `useNetlifyIdentity`
+
+If you'd like to handle your own context yourself, you can use this library as a hook as well:
+
+```tsx
+function useNetlifyIdentity(
+  url: string,
+  onAuthChange: authChangeParam = () => {},
+  enableRunRoutes: boolean = true
+): ReactNetlifyIdentityAPI;
+```
+
+the library watches for and handles confirmation routes by default. If you don't like this, pass `enableRunRoutes: false`. This was added here https://github.com/sw-yx/react-netlify-identity/issues/12 in v0.1.8
+
 ## License
 
 MIT © [sw-yx](https://github.com/sw-yx)
