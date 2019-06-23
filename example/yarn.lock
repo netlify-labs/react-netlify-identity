@@ -6232,10 +6232,10 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
-react-netlify-identity@^0.1.7:
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/react-netlify-identity/-/react-netlify-identity-0.1.7.tgz#68df92466fb59e8999f1a0792cdf88adc62baf62"
-  integrity sha512-RyVJq0iliTihTiQC8QGILf2/cSiJKo/lrLv3eMCGuEKWN35wy2LhyicpyPpnNWNNhtLL/FdKX/N+pY+ukPZAvg==
+react-netlify-identity@^0.1.8:
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/react-netlify-identity/-/react-netlify-identity-0.1.8.tgz#d5695fa9ded560050ab244b408d8dad45f5e47c6"
+  integrity sha512-0SHtm4ulNF+/FMn71RPm794cX5GI1+aBKdtctzsaeLltJPLNgNNf0KFtxoTFruXXXBvDtS8j4iX5dsGrfSUQWA==
   dependencies:
     gotrue-js "^0.9.25"
     tsdx "^0.6.0"
