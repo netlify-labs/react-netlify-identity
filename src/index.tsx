@@ -43,7 +43,7 @@ export type ReactNetlifyIdentityAPI = {
     token: string,
     remember?: boolean | undefined
   ) => Promise<User>;
-  updateUser: (fields: Object) => Promise<User | undefined>;
+  updateUser: (fields: { data: object }) => Promise<User | undefined>;
   getFreshJWT: () => Promise<string>;
   authedFetch: {
     get: (endpoint: string, obj?: {}) => Promise<any>;
@@ -153,12 +153,12 @@ export function useNetlifyIdentity(
     goTrueInstance.requestPasswordRecovery(email);
   const recoverAccount = (token: string, remember?: boolean | undefined) =>
     goTrueInstance.recover(token, remember);
-  const updateUser = (fields: Object) => {
+  const updateUser = (fields: { data: object }) => {
     if (user == null) {
       throw new Error('No current user found - are you logged in?');
     } else {
       return user!
-        .update(fields) // e.g. { email: "example@example.com", password: "password" }
+        .update(fields) // e.g. { data: { email: "example@example.com", password: "password" } }
         .then(_setUser);
     }
   };

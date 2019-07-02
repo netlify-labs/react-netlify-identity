@@ -48,7 +48,7 @@ yarn add react-netlify-identity
 - `logoutUser()`
 - `requestPasswordRecovery(email: string)`
 - `recoverAccount(token: string, remember?: boolean | undefined)`
-- `updateUser(fields: Object)`
+- `updateUser(fields: { data: object })`
 - `getFreshJWT()`
 - `authedFetch(endpoint: string, obj = {})` (a thin axios-like wrapper over `fetch` that has the user's JWT attached, for convenience pinging Netlify Functions with Netlify Identity)
 
