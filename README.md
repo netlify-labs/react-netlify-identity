@@ -13,6 +13,11 @@ Two demos:
 
 **This library is not officially maintained by Netlify.** This is written by swyx for his own use (and others with like minds 😎) and will be maintained as a personal project unless formally adopted by Netlify. See below for official alternatives.
 
+## Blogposts
+
+- [Add Netlify Identity Authentication to any React App in 5 minutes with React Context, Hooks and Suspense](https://dev.to/swyx/add-netlify-identity-authentication-to-any-react-app-in-5-minutes-with-react-context-hooks-and-suspense-5gci)
+
+
 ## List of Alternatives
 
 **Lowest level JS Library**: If you want to use the official Javascript bindings to GoTrue, Netlify's underlying Identity service written in Go, use https://github.com/netlify/gotrue-js
