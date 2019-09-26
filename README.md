@@ -1,10 +1,10 @@
 # react-netlify-identity
 
-> Netlify Identity + React Hooks, with Typescript
+> [Netlify Identity](https://www.netlify.com/docs/identity/?utm_source=github&utm_medium=swyx-RNI&utm_campaign=devex) + React Hooks, with Typescript. Bring your own UI!
 
 [![NPM](https://img.shields.io/npm/v/react-netlify-identity.svg)](https://www.npmjs.com/package/react-netlify-identity) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-Use [Netlify Identity](https://www.netlify.com/docs/identity/) easier with React! This is a thin wrapper over the [gotrue-js](https://github.com/netlify/gotrue-js) library for easily accessing Netlify Identity functionality in your app, with React Context and Hooks. Types are provided.
+Use [Netlify Identity](https://www.netlify.com/docs/identity/?utm_source=github&utm_medium=swyx-RNI&utm_campaign=devex) easier with React! This is a thin wrapper over the [gotrue-js](https://github.com/netlify/gotrue-js) library for easily accessing Netlify Identity functionality in your app, with React Context and Hooks. Types are provided.
 
 Two demos:
 
@@ -40,7 +40,7 @@ yarn add react-netlify-identity
 
 ## Usage
 
-⚠️ **Important:** You will need to have an active Netlify site running with Netlify Identity turned on. [Click here for instructions](https://www.netlify.com/docs/identity/#getting-started) to get started/double check that it is on. We will need your site's url (e.g. `https://mysite.netlify.com`) to initialize `IdentityContextProvider`.
+⚠️ **Important:** You will need to have an active Netlify site running with Netlify Identity turned on. [Click here for instructions](https://www.netlify.com/docs/identity/#getting-started?utm_source=github&utm_medium=swyx-RNI&utm_campaign=devex) to get started/double check that it is on. We will need your site's url (e.g. `https://mysite.netlify.com`) to initialize `IdentityContextProvider`.
 
 **When you call useIdentityContext()**, you can destructure these variables and methods:
 
