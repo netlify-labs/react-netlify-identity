@@ -1,0 +1,19 @@
+{
+  "name": "react-netlify-identity-example",
+  "version": "1.0.0",
+  "author": "Lewis Llobera <billobera@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1",
+    "react-netlify-identity": "^0.1.9",
+    "react-router-dom": "^5.1.2"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.4",
+    "@types/react-dom": "^16.9.1",
+    "@types/react-router-dom": "^5.1.0",
+    "styled-components": "^4.4.0",
+    "typescript": "^3.6.2"
+  }
+}

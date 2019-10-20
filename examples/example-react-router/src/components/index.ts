@@ -1,0 +1,11 @@
+export { AuthOption } from './AuthOption';
+export { AuthText } from './AuthText';
+export { Button } from './Button';
+export { ButtonGoogle } from './ButtonGoogle';
+export { Container } from './Container';
+export { Form } from './Form';
+export { GlobalStyles } from './GlobalStyles';
+export { Header } from './Header';
+export { Input } from './Input';
+export { Label } from './Label';
+export { TextError } from './TextError';

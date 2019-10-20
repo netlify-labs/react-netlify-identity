@@ -6,10 +6,12 @@
 
 Use [Netlify Identity](https://www.netlify.com/docs/identity/?utm_source=github&utm_medium=swyx-RNI&utm_campaign=devex) easier with React! This is a thin wrapper over the [gotrue-js](https://github.com/netlify/gotrue-js) library for easily accessing Netlify Identity functionality in your app, with React Context and Hooks. Types are provided.
 
-Two demos:
+Three demos:
 
 - [a full demo here](https://netlify-gotrue-in-react.netlify.com/) with [source code](https://github.com/netlify/create-react-app-lambda/tree/reachRouterAndGoTrueDemo/src)
-- the `example` folder here has [a demo hosted here](https://react-netlify-identity.netlify.com) with [deploy logs here](https://app.netlify.com/sites/react-netlify-identity/deploys)
+- [example with Reach Router](https://github.com/sw-yx/react-netlify-identity/tree/master/examples/example-reach-router) with [a demo hosted here](https://react-netlify-identity.netlify.com) and [deployed logs here](https://app.netlify.com/sites/react-netlify-identity/deploys)
+- [example with React Router](https://github.com/sw-yx/react-netlify-identity/tree/master/examples/example-react-router) with [a demo hosted here](https://react-netlify-identity-example.netlify.com)
+
 
 **This library is not officially maintained by Netlify.** This is written by swyx for his own use (and others with like minds 😎) and will be maintained as a personal project unless formally adopted by Netlify. See below for official alternatives.
 
