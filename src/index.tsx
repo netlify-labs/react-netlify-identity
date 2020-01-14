@@ -20,6 +20,7 @@ type authChangeParam = (user?: User) => string | void;
 
 export type Settings = GoTrueSettings;
 export type User = GoTrueUser;
+type Provider = 'bitbucket' | 'github' | 'gitlab' | 'google';
 
 const defaultSettings = {
   autoconfirm: false,
@@ -66,13 +67,8 @@ export type ReactNetlifyIdentityAPI = {
   };
   _goTrueInstance: GoTrue;
   _url: string;
-  loginProvider: (
-    provider: 'bitbucket' | 'github' | 'gitlab' | 'google'
-  ) => void;
-  acceptInviteExternalUrl: (
-    provider: 'bitbucket' | 'github' | 'gitlab' | 'google',
-    token: string
-  ) => string;
+  loginProvider: (provider: Provider) => void;
+  acceptInviteExternalUrl: (provider: Provider, token: string) => string;
   settings: Settings;
 };
 
@@ -140,7 +136,6 @@ export function useNetlifyIdentity(
   // make sure the Registration preferences under Identity settings in your Netlify dashboard are set to Open.
   // https://react-netlify-identity.netlify.com/login#access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTY0ODY3MjEsInN1YiI6ImNiZjY5MTZlLTNlZGYtNGFkNS1iOTYzLTQ4ZTY2NDcyMDkxNyIsImVtYWlsIjoic2hhd250aGUxQGdtYWlsLmNvbSIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImdpdGh1YiJ9LCJ1c2VyX21ldGFkYXRhIjp7ImF2YXRhcl91cmwiOiJodHRwczovL2F2YXRhcnMxLmdpdGh1YnVzZXJjb250ZW50LmNvbS91LzY3NjQ5NTc_dj00IiwiZnVsbF9uYW1lIjoic3d5eCJ9fQ.E8RrnuCcqq-mLi1_Q5WHJ-9THIdQ3ha1mePBKGhudM0&expires_in=3600&refresh_token=OyA_EdRc7WOIVhY7RiRw5w&token_type=bearer
   /******* external oauth */
-  type Provider = 'bitbucket' | 'github' | 'gitlab' | 'google';
 
   const loginProvider = (provider: Provider) => {
     const url = goTrueInstance.loginExternalUrl(provider);
