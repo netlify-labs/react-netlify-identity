@@ -1,4 +1,5 @@
 import GoTrue, { User } from 'gotrue-js';
+import { TokenParam, defaultParam } from './token';
 
 /**
  * This code runs on every rerender so keep it light
@@ -15,9 +16,13 @@ export function runRoutes(
   gotrue: GoTrue,
   setUser: (value: User) => User | undefined,
   remember = true
-) {
-  const hash = (document.location.hash || '').replace(/^#\/?/, '');
-  if (!hash) return; // early terminate if no hash
+): TokenParam {
+  // early terminate if no hash
+  if (!document?.location?.hash) {
+    return defaultParam;
+  }
+
+  const hash = document.location.hash.replace(/^#\/?/, '');
 
   const m = hash.match(routes);
   if (m) {
@@ -38,8 +43,8 @@ export function runRoutes(
 
   const am = hash.match(accessTokenRoute);
   if (am) {
-    if (!!document && params['access_token']) {
-      document.cookie = `nf_jwt=${params['access_token']}`;
+    if (!!document && params.access_token) {
+      document.cookie = `nf_jwt=${params.access_token}`;
     }
     document.location.hash = '';
     // store.openModal("login");
@@ -56,8 +61,26 @@ export function runRoutes(
     // store.openModal("login");
     // store.completeExternalLogin(params);
     gotrue
-      .confirm(params['confirmation_token'])
+      .confirm(params.confirmation_token)
       .then(setUser)
       .catch(console.error);
   }
+
+  if (m) {
+    return {
+      ...defaultParam,
+      type: m[1] as TokenParam['type'],
+      token: m[2],
+    };
+  }
+
+  if (em) {
+    return {
+      ...defaultParam,
+      error: 'access_denied',
+      status: 403,
+    };
+  }
+
+  return defaultParam;
 }

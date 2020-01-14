@@ -15,6 +15,7 @@ import GoTrue, {
   Settings as GoTrueSettings,
 } from 'gotrue-js';
 import { runRoutes } from './runRoutes';
+import { TokenParam, defaultParam } from './token';
 
 type authChangeParam = (user?: User) => string | void;
 
@@ -70,6 +71,7 @@ export type ReactNetlifyIdentityAPI = {
   loginProvider: (provider: Provider) => void;
   acceptInviteExternalUrl: (provider: Provider, token: string) => string;
   settings: Settings;
+  param: TokenParam;
 };
 
 const [_useIdentityContext, _IdentityCtxProvider] = createCtx<
@@ -126,9 +128,15 @@ export function useNetlifyIdentity(
     return _user; // so that we can continue chaining
   };
 
+  const [param, setParam] = useState<TokenParam>(defaultParam);
+
   useEffect(() => {
     if (enableRunRoutes) {
-      runRoutes(goTrueInstance, _setUser);
+      const param = runRoutes(goTrueInstance, _setUser);
+
+      if (param.token || param.error) {
+        setParam(param);
+      }
     }
   }, []);
 
@@ -224,6 +232,7 @@ export function useNetlifyIdentity(
     loginProvider,
     acceptInviteExternalUrl,
     settings,
+    param,
   };
 }
 
