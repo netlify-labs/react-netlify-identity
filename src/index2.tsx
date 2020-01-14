@@ -4,11 +4,11 @@ import React, {
   useEffect,
   createContext,
   useContext,
+  useCallback,
   // types
   Dispatch,
   SetStateAction,
   ReactNode,
-  useCallback,
 } from 'react';
 
 import GoTrue, {
@@ -16,13 +16,11 @@ import GoTrue, {
   Settings as GoTrueSettings,
 } from 'gotrue-js';
 import { runRoutes } from './runRoutes';
-import { TokenParam, defaultParam } from './token';
 
 type authChangeParam = (user?: User) => string | void;
 
 export type Settings = GoTrueSettings;
 export type User = GoTrueUser;
-type Provider = 'bitbucket' | 'github' | 'gitlab' | 'google';
 
 const defaultSettings = {
   autoconfirm: false,
@@ -38,10 +36,31 @@ const defaultSettings = {
 };
 
 const errors = {
+  noTokenFound: 'no user token found',
   noUserFound: 'No current user found - are you logged in?',
 };
 
+export interface TokenParam {
+  token: string | undefined;
+  type:
+    | 'confirmation'
+    | 'invite'
+    | 'recovery'
+    | 'email_change'
+    | 'access'
+    | 'confirmation'
+    | undefined;
+  error?: 'access_denied';
+  status?: 403;
+}
+
+export type Provider = 'bitbucket' | 'github' | 'gitlab' | 'google';
 type MaybeUserPromise = Promise<User | undefined>;
+
+export const defaultParam: TokenParam = {
+  token: undefined,
+  type: undefined,
+};
 
 export type ReactNetlifyIdentityAPI = {
   user: User | undefined;
@@ -126,22 +145,16 @@ export function useNetlifyIdentity(
     [url]
   );
 
-  /******* STATE and EFFECTS */
-
   const [user, setUser] = useState<User | undefined>(
     goTrueInstance.currentUser() || undefined
   );
-
-  const _setUser = useCallback(
-    (_user: User | undefined) => {
-      setUser(_user);
-      onAuthChange(_user); // if someone's subscribed to auth changes, let 'em know
-      return _user; // so that we can continue chaining
-    },
-    [onAuthChange]
-  );
-
   const [param, setParam] = useState<TokenParam>(defaultParam);
+
+  const _setUser = useCallback((_user: User | undefined) => {
+    setUser(_user);
+    onAuthChange(_user); // if someone's subscribed to auth changes, let 'em know
+    return _user; // so that we can continue chaining
+  }, []);
 
   useEffect(() => {
     if (enableRunRoutes) {
@@ -156,9 +169,7 @@ export function useNetlifyIdentity(
   const [settings, setSettings] = useState<Settings>(defaultSettings);
 
   useEffect(() => {
-    goTrueInstance.settings
-      .bind(goTrueInstance)()
-      .then(x => setSettings(x));
+    _settings().then(setSettings);
   }, []);
 
   /******* OPERATIONS */
@@ -166,32 +177,29 @@ export function useNetlifyIdentity(
   // https://react-netlify-identity.netlify.com/login#access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTY0ODY3MjEsInN1YiI6ImNiZjY5MTZlLTNlZGYtNGFkNS1iOTYzLTQ4ZTY2NDcyMDkxNyIsImVtYWlsIjoic2hhd250aGUxQGdtYWlsLmNvbSIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImdpdGh1YiJ9LCJ1c2VyX21ldGFkYXRhIjp7ImF2YXRhcl91cmwiOiJodHRwczovL2F2YXRhcnMxLmdpdGh1YnVzZXJjb250ZW50LmNvbS91LzY3NjQ5NTc_dj00IiwiZnVsbF9uYW1lIjoic3d5eCJ9fQ.E8RrnuCcqq-mLi1_Q5WHJ-9THIdQ3ha1mePBKGhudM0&expires_in=3600&refresh_token=OyA_EdRc7WOIVhY7RiRw5w&token_type=bearer
   /******* external oauth */
 
-  const loginProvider = useCallback(
-    (provider: Provider) => {
-      const url = goTrueInstance.loginExternalUrl(provider);
-      window.location.href = url;
-    },
-    [goTrueInstance]
-  );
+  const loginProvider = useCallback((provider: Provider) => {
+    const url = goTrueInstance.loginExternalUrl(provider);
+    window.location.href = url;
+  }, []);
 
   const acceptInviteExternalUrl = useCallback(
     (provider: Provider, token: string) =>
       goTrueInstance.acceptInviteExternalUrl(provider, token),
-    [goTrueInstance]
+    []
   );
+  const _settings = goTrueInstance.settings.bind(goTrueInstance);
 
   /******* email auth */
   const signupUser = useCallback(
     (email: string, password: string, data: Object) =>
-      // TODO: make setUser optional?
       goTrueInstance.signup(email, password, data).then(_setUser),
     [goTrueInstance]
-  );
+  ); // TODO: make setUser optional?
 
   const loginUser = useCallback(
     (email: string, password: string, remember: boolean = true) =>
       goTrueInstance.login(email, password, remember).then(_setUser),
-    [goTrueInstance, _setUser]
+    [goTrueInstance]
   );
 
   const requestPasswordRecovery = useCallback(
@@ -207,41 +215,33 @@ export function useNetlifyIdentity(
 
   const updateUser = useCallback(
     (fields: { data: object }) => {
-      if (!user) {
+      if (user == null) {
         throw new Error(errors.noUserFound);
+      } else {
+        return user!
+          .update(fields) // e.g. { data: { email: "example@example.com", password: "password" } }
+          .then(_setUser);
       }
-
-      return user!
-        .update(fields) // e.g. { data: { email: "example@example.com", password: "password" } }
-        .then(_setUser);
     },
     [user]
   );
 
   const getFreshJWT = useCallback(() => {
-    if (!user) {
-      throw new Error(errors.noUserFound);
-    }
-
+    if (!user) throw new Error(errors.noUserFound);
     return user.jwt();
   }, [user]);
 
   const logoutUser = useCallback(() => {
-    if (!user) {
-      throw new Error(errors.noUserFound);
-    }
-
+    if (!user) throw new Error(errors.noUserFound);
     return user.logout().then(() => _setUser(undefined));
   }, [user]);
 
   const genericAuthedFetch = (method: string) => (
     endpoint: string,
-    options: RequestInit = {}
+    obj = {}
   ) => {
-    if (!user?.token?.access_token) {
-      throw new Error('no user token found');
-    }
-
+    if (!user || !user.token || !user.token.access_token)
+      throw new Error(errors.noTokenFound);
     const defaultObj = {
       headers: {
         Accept: 'application/json',
@@ -249,19 +249,21 @@ export function useNetlifyIdentity(
         Authorization: 'Bearer ' + user.token.access_token,
       },
     };
-    const finalObj = Object.assign(defaultObj, { method }, options);
-
+    const finalObj = Object.assign(defaultObj, { method }, obj);
     return fetch(endpoint, finalObj).then(res =>
       finalObj.headers['Content-Type'] === 'application/json' ? res.json() : res
     );
   };
 
-  const authedFetch = {
-    get: genericAuthedFetch('GET'),
-    post: genericAuthedFetch('POST'),
-    put: genericAuthedFetch('PUT'),
-    delete: genericAuthedFetch('DELETE'),
-  };
+  const authedFetch = useMemo(
+    () => ({
+      get: genericAuthedFetch('GET'),
+      post: genericAuthedFetch('POST'),
+      put: genericAuthedFetch('PUT'),
+      delete: genericAuthedFetch('DELETE'),
+    }),
+    []
+  );
 
   /******* hook API */
   return {
