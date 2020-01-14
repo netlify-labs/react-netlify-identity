@@ -1,4 +1,14 @@
-import React from 'react';
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  createContext,
+  useContext,
+  // types
+  Dispatch,
+  SetStateAction,
+  ReactNode,
+} from 'react';
 
 import GoTrue, {
   User as GoTrueUser,
@@ -27,7 +37,7 @@ const defaultSettings = {
 export type ReactNetlifyIdentityAPI = {
   user: User | undefined;
   /** not meant for normal use! you should mostly use one of the other exported methods to update the user instance */
-  setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
+  setUser: Dispatch<SetStateAction<User | undefined>>;
   isConfirmedUser: boolean;
   isLoggedIn: boolean;
   signupUser: (
@@ -78,7 +88,7 @@ export function IdentityContextProvider({
   onAuthChange = () => {},
 }: {
   url: string;
-  children: React.ReactNode;
+  children: ReactNode;
   onAuthChange?: authChangeParam;
 }) {
   /******** SETUP */
@@ -102,7 +112,7 @@ export function useNetlifyIdentity(
   onAuthChange: authChangeParam = () => {},
   enableRunRoutes: boolean = true
 ): ReactNetlifyIdentityAPI {
-  const goTrueInstance = React.useMemo(
+  const goTrueInstance = useMemo(
     () =>
       new GoTrue({
         APIUrl: `${url}/.netlify/identity`,
@@ -111,7 +121,7 @@ export function useNetlifyIdentity(
     [url]
   );
 
-  const [user, setUser] = React.useState<User | undefined>(
+  const [user, setUser] = useState<User | undefined>(
     goTrueInstance.currentUser() || undefined
   );
   const _setUser = (_user: User | undefined) => {
@@ -120,7 +130,7 @@ export function useNetlifyIdentity(
     return _user; // so that we can continue chaining
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (enableRunRoutes) {
       runRoutes(goTrueInstance, _setUser);
     }
@@ -139,8 +149,8 @@ export function useNetlifyIdentity(
   const acceptInviteExternalUrl = (provider: Provider, token: string) =>
     goTrueInstance.acceptInviteExternalUrl(provider, token);
   const _settings = goTrueInstance.settings.bind(goTrueInstance);
-  const [settings, setSettings] = React.useState<Settings>(defaultSettings);
-  React.useEffect(() => {
+  const [settings, setSettings] = useState<Settings>(defaultSettings);
+  useEffect(() => {
     _settings().then(x => setSettings(x));
   }, []);
 
@@ -237,9 +247,9 @@ function validateUrl(value: string) {
 
 // lazy initialize contexts without providing a Nullable type upfront
 function createCtx<A>() {
-  const ctx = React.createContext<A | undefined>(undefined);
+  const ctx = createContext<A | undefined>(undefined);
   function useCtx() {
-    const c = React.useContext(ctx);
+    const c = useContext(ctx);
     if (!c) throw new Error('useCtx must be inside a Provider with a value');
     return c;
   }
