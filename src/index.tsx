@@ -39,6 +39,8 @@ const defaultSettings = {
 
 const errors = {
   noUserFound: 'No current user found - are you logged in?',
+  noUserTokenFound: 'no user token found',
+  noRecoveryTokenFound: 'no recovery token found',
 };
 
 type MaybeUserPromise = Promise<User | undefined>;
@@ -61,10 +63,7 @@ export type ReactNetlifyIdentityAPI = {
   ) => MaybeUserPromise;
   logoutUser: () => MaybeUserPromise;
   requestPasswordRecovery: (email: string) => Promise<void>;
-  recoverAccount: (
-    token: string,
-    remember?: boolean | undefined
-  ) => Promise<User>;
+  recoverAccount: (remember?: boolean | undefined) => MaybeUserPromise;
   updateUser: (fields: { data: object }) => MaybeUserPromise;
   getFreshJWT: () => Promise<string>;
   authedFetch: {
@@ -190,7 +189,7 @@ export function useNetlifyIdentity(
     ) =>
       goTrueInstance.signup(email, password, data).then(user => {
         if (directLogin) {
-          _setUser(user);
+          return _setUser(user);
         }
 
         return user;
@@ -210,9 +209,18 @@ export function useNetlifyIdentity(
   );
 
   const recoverAccount = useCallback(
-    (token: string, remember?: boolean | undefined) =>
-      goTrueInstance.recover(token, remember),
-    [goTrueInstance]
+    (remember?: boolean | undefined) => {
+      if (!param.token) {
+        throw new Error(errors.noRecoveryTokenFound);
+      }
+
+      return goTrueInstance.recover(param.token, remember).then(user => {
+        // clean up consumed token
+        setParam(defaultParam);
+        return _setUser(user);
+      });
+    },
+    [goTrueInstance, _setUser, param]
   );
 
   const updateUser = useCallback(
@@ -249,7 +257,7 @@ export function useNetlifyIdentity(
     options: RequestInit = {}
   ) => {
     if (!user?.token?.access_token) {
-      throw new Error('no user token found');
+      throw new Error(errors.noUserTokenFound);
     }
 
     const defaultObj = {
