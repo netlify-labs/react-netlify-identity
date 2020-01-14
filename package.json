@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "gotrue-js": "^0.9.25",
-    "tsdx": "^0.6.0"
+    "tsdx": "^0.12.3"
   },
   "peerDependencies": {
     "react": "^15.0.0 || ^16.0.0",
@@ -43,18 +43,18 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
-    "@svgr/rollup": "^4.2.0",
-    "@types/jest": "^23.1.5",
-    "@types/react": "^16.7.13",
-    "@types/react-dom": "^16.0.11",
-    "auto-changelog": "^1.13.0",
+    "@svgr/rollup": "^5.0.1",
+    "@types/jest": "^24.0.25",
+    "@types/react": "^16.9.17",
+    "@types/react-dom": "^16.9.4",
+    "auto-changelog": "^1.16.2",
     "gh-release": "^3.5.0",
-    "husky": "^2.3.0",
-    "prettier": "^1.17.1",
-    "pretty-quick": "^1.11.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "typescript": "^3.5.1"
+    "husky": "^4.0.9",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "typescript": "^3.7.4"
   },
   "files": [
     "dist"

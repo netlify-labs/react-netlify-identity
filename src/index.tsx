@@ -1,12 +1,15 @@
 import React from 'react';
 
-import GoTrue, { User, Settings } from 'gotrue-js';
+import GoTrue, {
+  User as GoTrueUser,
+  Settings as GoTrueSettings,
+} from 'gotrue-js';
 import { runRoutes } from './runRoutes';
 
 type authChangeParam = (user?: User) => string | void;
 
-export type Settings = Settings;
-export type User = User;
+export type Settings = GoTrueSettings;
+export type User = GoTrueUser;
 
 const defaultSettings = {
   autoconfirm: false,
