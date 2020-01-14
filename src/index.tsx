@@ -182,10 +182,20 @@ export function useNetlifyIdentity(
 
   /******* email auth */
   const signupUser = useCallback(
-    (email: string, password: string, data: Object) =>
-      // TODO: make setUser optional?
-      goTrueInstance.signup(email, password, data).then(_setUser),
-    [goTrueInstance]
+    (
+      email: string,
+      password: string,
+      data: Object,
+      directLogin: boolean = true
+    ) =>
+      goTrueInstance.signup(email, password, data).then(user => {
+        if (directLogin) {
+          _setUser(user);
+        }
+
+        return user;
+      }),
+    [goTrueInstance, _setUser]
   );
 
   const loginUser = useCallback(
