@@ -4,11 +4,9 @@ import React, {
   useEffect,
   createContext,
   useContext,
-  // types
-  Dispatch,
-  SetStateAction,
-  ReactNode,
   useCallback,
+  // types
+  ReactNode,
 } from 'react';
 
 import GoTrue, {
@@ -48,7 +46,7 @@ type MaybeUserPromise = Promise<User | undefined>;
 export type ReactNetlifyIdentityAPI = {
   user: User | undefined;
   /** not meant for normal use! you should mostly use one of the other exported methods to update the user instance */
-  setUser: Dispatch<SetStateAction<User | undefined>>;
+  setUser: (_user: GoTrueUser | undefined) => GoTrueUser | undefined;
   isConfirmedUser: boolean;
   isLoggedIn: boolean;
   signupUser: (
@@ -294,7 +292,7 @@ export function useNetlifyIdentity(
   return {
     user,
     /** not meant for normal use! you should mostly use one of the other exported methods to update the user instance */
-    setUser,
+    setUser: _setUser,
     isConfirmedUser: !!(user && user.confirmed_at),
     isLoggedIn: !!user,
     signupUser,
