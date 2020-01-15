@@ -40,7 +40,7 @@ const defaultSettings = {
 const errors = {
   noUserFound: 'No current user found - are you logged in?',
   noUserTokenFound: 'no user token found',
-  noRecoveryTokenFound: 'no recovery token found',
+  tokenMissingOrInvalid: 'either no token found or invalid for this purpose',
 };
 
 type MaybeUserPromise = Promise<User | undefined>;
@@ -63,7 +63,7 @@ export type ReactNetlifyIdentityAPI = {
   ) => MaybeUserPromise;
   logoutUser: () => MaybeUserPromise;
   requestPasswordRecovery: (email: string) => Promise<void>;
-  recoverAccount: (remember?: boolean | undefined) => MaybeUserPromise;
+  recoverAccount: (remember?: boolean) => MaybeUserPromise;
   updateUser: (fields: { data: object }) => MaybeUserPromise;
   getFreshJWT: () => Promise<string>;
   authedFetch: {
@@ -75,7 +75,7 @@ export type ReactNetlifyIdentityAPI = {
   _goTrueInstance: GoTrue;
   _url: string;
   loginProvider: (provider: Provider) => void;
-  acceptInviteExternalUrl: (provider: Provider, token: string) => string;
+  acceptInviteExternalUrl: (provider: Provider) => string;
   settings: Settings;
   param: TokenParam;
 };
@@ -174,9 +174,18 @@ export function useNetlifyIdentity(
   );
 
   const acceptInviteExternalUrl = useCallback(
-    (provider: Provider, token: string) =>
-      goTrueInstance.acceptInviteExternalUrl(provider, token),
-    [goTrueInstance]
+    (provider: Provider) => {
+      if (!param.token || param.type !== 'invite') {
+        throw new Error(errors.tokenMissingOrInvalid);
+      }
+
+      const url = goTrueInstance.acceptInviteExternalUrl(provider, param.token);
+      // clean up consumed token
+      setParam(defaultParam);
+
+      return url;
+    },
+    [goTrueInstance, param]
   );
 
   /******* email auth */
@@ -210,8 +219,8 @@ export function useNetlifyIdentity(
 
   const recoverAccount = useCallback(
     (remember?: boolean | undefined) => {
-      if (!param.token) {
-        throw new Error(errors.noRecoveryTokenFound);
+      if (!param.token || param.type !== 'recovery') {
+        throw new Error(errors.tokenMissingOrInvalid);
       }
 
       return goTrueInstance.recover(param.token, remember).then(user => {
