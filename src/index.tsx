@@ -218,7 +218,7 @@ export function useNetlifyIdentity(
   );
 
   const recoverAccount = useCallback(
-    (remember?: boolean | undefined) => {
+    (remember?: boolean) => {
       if (!param.token || param.type !== 'recovery') {
         throw new Error(errors.tokenMissingOrInvalid);
       }
