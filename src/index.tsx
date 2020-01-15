@@ -1,12 +1,28 @@
-import React from 'react';
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  createContext,
+  useContext,
+  // types
+  Dispatch,
+  SetStateAction,
+  ReactNode,
+  useCallback,
+} from 'react';
 
-import GoTrue, { User, Settings } from 'gotrue-js';
+import GoTrue, {
+  User as GoTrueUser,
+  Settings as GoTrueSettings,
+} from 'gotrue-js';
 import { runRoutes } from './runRoutes';
+import { TokenParam, defaultParam } from './token';
 
 type authChangeParam = (user?: User) => string | void;
 
-export type Settings = Settings;
-export type User = User;
+export type Settings = GoTrueSettings;
+export type User = GoTrueUser;
+type Provider = 'bitbucket' | 'github' | 'gitlab' | 'google';
 
 const defaultSettings = {
   autoconfirm: false,
@@ -21,29 +37,34 @@ const defaultSettings = {
   },
 };
 
+const errors = {
+  noUserFound: 'No current user found - are you logged in?',
+  noUserTokenFound: 'no user token found',
+  tokenMissingOrInvalid: 'either no token found or invalid for this purpose',
+};
+
+type MaybeUserPromise = Promise<User | undefined>;
+
 export type ReactNetlifyIdentityAPI = {
   user: User | undefined;
   /** not meant for normal use! you should mostly use one of the other exported methods to update the user instance */
-  setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
+  setUser: Dispatch<SetStateAction<User | undefined>>;
   isConfirmedUser: boolean;
   isLoggedIn: boolean;
   signupUser: (
     email: string,
     password: string,
     data: Object
-  ) => Promise<User | undefined>;
+  ) => MaybeUserPromise;
   loginUser: (
     email: string,
     password: string,
     remember?: boolean
-  ) => Promise<User | undefined>;
-  logoutUser: () => Promise<User | undefined>;
+  ) => MaybeUserPromise;
+  logoutUser: () => MaybeUserPromise;
   requestPasswordRecovery: (email: string) => Promise<void>;
-  recoverAccount: (
-    token: string,
-    remember?: boolean | undefined
-  ) => Promise<User>;
-  updateUser: (fields: { data: object }) => Promise<User | undefined>;
+  recoverAccount: (remember?: boolean) => MaybeUserPromise;
+  updateUser: (fields: { data: object }) => MaybeUserPromise;
   getFreshJWT: () => Promise<string>;
   authedFetch: {
     get: (endpoint: string, obj?: {}) => Promise<any>;
@@ -53,14 +74,10 @@ export type ReactNetlifyIdentityAPI = {
   };
   _goTrueInstance: GoTrue;
   _url: string;
-  loginProvider: (
-    provider: 'bitbucket' | 'github' | 'gitlab' | 'google'
-  ) => void;
-  acceptInviteExternalUrl: (
-    provider: 'bitbucket' | 'github' | 'gitlab' | 'google',
-    token: string
-  ) => string;
+  loginProvider: (provider: Provider) => void;
+  acceptInviteExternalUrl: (provider: Provider) => string;
   settings: Settings;
+  param: TokenParam;
 };
 
 const [_useIdentityContext, _IdentityCtxProvider] = createCtx<
@@ -75,7 +92,7 @@ export function IdentityContextProvider({
   onAuthChange = () => {},
 }: {
   url: string;
-  children: React.ReactNode;
+  children: ReactNode;
   onAuthChange?: authChangeParam;
 }) {
   /******** SETUP */
@@ -99,7 +116,7 @@ export function useNetlifyIdentity(
   onAuthChange: authChangeParam = () => {},
   enableRunRoutes: boolean = true
 ): ReactNetlifyIdentityAPI {
-  const goTrueInstance = React.useMemo(
+  const goTrueInstance = useMemo(
     () =>
       new GoTrue({
         APIUrl: `${url}/.netlify/identity`,
@@ -108,75 +125,150 @@ export function useNetlifyIdentity(
     [url]
   );
 
-  const [user, setUser] = React.useState<User | undefined>(
+  /******* STATE and EFFECTS */
+
+  const [user, setUser] = useState<User | undefined>(
     goTrueInstance.currentUser() || undefined
   );
-  const _setUser = (_user: User | undefined) => {
-    setUser(_user);
-    onAuthChange(_user); // if someone's subscribed to auth changes, let 'em know
-    return _user; // so that we can continue chaining
-  };
 
-  React.useEffect(() => {
+  const _setUser = useCallback(
+    (_user: User | undefined) => {
+      setUser(_user);
+      onAuthChange(_user); // if someone's subscribed to auth changes, let 'em know
+      return _user; // so that we can continue chaining
+    },
+    [onAuthChange]
+  );
+
+  const [param, setParam] = useState<TokenParam>(defaultParam);
+
+  useEffect(() => {
     if (enableRunRoutes) {
-      runRoutes(goTrueInstance, _setUser);
+      const param = runRoutes(goTrueInstance, _setUser);
+
+      if (param.token || param.error) {
+        setParam(param);
+      }
     }
+  }, []);
+
+  const [settings, setSettings] = useState<Settings>(defaultSettings);
+
+  useEffect(() => {
+    goTrueInstance.settings
+      .bind(goTrueInstance)()
+      .then(x => setSettings(x));
   }, []);
 
   /******* OPERATIONS */
   // make sure the Registration preferences under Identity settings in your Netlify dashboard are set to Open.
   // https://react-netlify-identity.netlify.com/login#access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTY0ODY3MjEsInN1YiI6ImNiZjY5MTZlLTNlZGYtNGFkNS1iOTYzLTQ4ZTY2NDcyMDkxNyIsImVtYWlsIjoic2hhd250aGUxQGdtYWlsLmNvbSIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImdpdGh1YiJ9LCJ1c2VyX21ldGFkYXRhIjp7ImF2YXRhcl91cmwiOiJodHRwczovL2F2YXRhcnMxLmdpdGh1YnVzZXJjb250ZW50LmNvbS91LzY3NjQ5NTc_dj00IiwiZnVsbF9uYW1lIjoic3d5eCJ9fQ.E8RrnuCcqq-mLi1_Q5WHJ-9THIdQ3ha1mePBKGhudM0&expires_in=3600&refresh_token=OyA_EdRc7WOIVhY7RiRw5w&token_type=bearer
   /******* external oauth */
-  type Provider = 'bitbucket' | 'github' | 'gitlab' | 'google';
 
-  const loginProvider = (provider: Provider) => {
-    const url = goTrueInstance.loginExternalUrl(provider);
-    window.location.href = url;
-  };
-  const acceptInviteExternalUrl = (provider: Provider, token: string) =>
-    goTrueInstance.acceptInviteExternalUrl(provider, token);
-  const _settings = goTrueInstance.settings.bind(goTrueInstance);
-  const [settings, setSettings] = React.useState<Settings>(defaultSettings);
-  React.useEffect(() => {
-    _settings().then(x => setSettings(x));
-  }, []);
+  const loginProvider = useCallback(
+    (provider: Provider) => {
+      const url = goTrueInstance.loginExternalUrl(provider);
+      window.location.href = url;
+    },
+    [goTrueInstance]
+  );
+
+  const acceptInviteExternalUrl = useCallback(
+    (provider: Provider) => {
+      if (!param.token || param.type !== 'invite') {
+        throw new Error(errors.tokenMissingOrInvalid);
+      }
+
+      const url = goTrueInstance.acceptInviteExternalUrl(provider, param.token);
+      // clean up consumed token
+      setParam(defaultParam);
+
+      return url;
+    },
+    [goTrueInstance, param]
+  );
 
   /******* email auth */
-  const signupUser = (email: string, password: string, data: Object) =>
-    goTrueInstance.signup(email, password, data).then(_setUser); // TODO: make setUser optional?
-  const loginUser = (
-    email: string,
-    password: string,
-    remember: boolean = true
-  ) => goTrueInstance.login(email, password, remember).then(_setUser);
-  const requestPasswordRecovery = (email: string) =>
-    goTrueInstance.requestPasswordRecovery(email);
-  const recoverAccount = (token: string, remember?: boolean | undefined) =>
-    goTrueInstance.recover(token, remember);
-  const updateUser = (fields: { data: object }) => {
-    if (user == null) {
-      throw new Error('No current user found - are you logged in?');
-    } else {
+  const signupUser = useCallback(
+    (
+      email: string,
+      password: string,
+      data: Object,
+      directLogin: boolean = true
+    ) =>
+      goTrueInstance.signup(email, password, data).then(user => {
+        if (directLogin) {
+          return _setUser(user);
+        }
+
+        return user;
+      }),
+    [goTrueInstance, _setUser]
+  );
+
+  const loginUser = useCallback(
+    (email: string, password: string, remember: boolean = true) =>
+      goTrueInstance.login(email, password, remember).then(_setUser),
+    [goTrueInstance, _setUser]
+  );
+
+  const requestPasswordRecovery = useCallback(
+    (email: string) => goTrueInstance.requestPasswordRecovery(email),
+    [goTrueInstance]
+  );
+
+  const recoverAccount = useCallback(
+    (remember?: boolean | undefined) => {
+      if (!param.token || param.type !== 'recovery') {
+        throw new Error(errors.tokenMissingOrInvalid);
+      }
+
+      return goTrueInstance.recover(param.token, remember).then(user => {
+        // clean up consumed token
+        setParam(defaultParam);
+        return _setUser(user);
+      });
+    },
+    [goTrueInstance, _setUser, param]
+  );
+
+  const updateUser = useCallback(
+    (fields: { data: object }) => {
+      if (!user) {
+        throw new Error(errors.noUserFound);
+      }
+
       return user!
         .update(fields) // e.g. { data: { email: "example@example.com", password: "password" } }
         .then(_setUser);
+    },
+    [user]
+  );
+
+  const getFreshJWT = useCallback(() => {
+    if (!user) {
+      throw new Error(errors.noUserFound);
     }
-  };
-  const getFreshJWT = () => {
-    if (!user) throw new Error('No current user found - are you logged in?');
+
     return user.jwt();
-  };
-  const logoutUser = () => {
-    if (!user) throw new Error('No current user found - are you logged in?');
+  }, [user]);
+
+  const logoutUser = useCallback(() => {
+    if (!user) {
+      throw new Error(errors.noUserFound);
+    }
+
     return user.logout().then(() => _setUser(undefined));
-  };
+  }, [user]);
 
   const genericAuthedFetch = (method: string) => (
     endpoint: string,
-    obj = {}
+    options: RequestInit = {}
   ) => {
-    if (!user || !user.token || !user.token.access_token)
-      throw new Error('no user token found');
+    if (!user?.token?.access_token) {
+      throw new Error(errors.noUserTokenFound);
+    }
+
     const defaultObj = {
       headers: {
         Accept: 'application/json',
@@ -184,11 +276,13 @@ export function useNetlifyIdentity(
         Authorization: 'Bearer ' + user.token.access_token,
       },
     };
-    const finalObj = Object.assign(defaultObj, { method }, obj);
+    const finalObj = Object.assign(defaultObj, { method }, options);
+
     return fetch(endpoint, finalObj).then(res =>
       finalObj.headers['Content-Type'] === 'application/json' ? res.json() : res
     );
   };
+
   const authedFetch = {
     get: genericAuthedFetch('GET'),
     post: genericAuthedFetch('POST'),
@@ -216,6 +310,7 @@ export function useNetlifyIdentity(
     loginProvider,
     acceptInviteExternalUrl,
     settings,
+    param,
   };
 }
 
@@ -234,9 +329,9 @@ function validateUrl(value: string) {
 
 // lazy initialize contexts without providing a Nullable type upfront
 function createCtx<A>() {
-  const ctx = React.createContext<A | undefined>(undefined);
+  const ctx = createContext<A | undefined>(undefined);
   function useCtx() {
-    const c = React.useContext(ctx);
+    const c = useContext(ctx);
     if (!c) throw new Error('useCtx must be inside a Provider with a value');
     return c;
   }
