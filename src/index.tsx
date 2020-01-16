@@ -52,7 +52,8 @@ export type ReactNetlifyIdentityAPI = {
   signupUser: (
     email: string,
     password: string,
-    data: Object
+    data: Object,
+    directLogin: boolean
   ) => MaybeUserPromise;
   loginUser: (
     email: string,
