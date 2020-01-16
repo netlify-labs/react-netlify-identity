@@ -48,7 +48,11 @@ yarn add react-netlify-identity
 - `setUser`: directly set the user object. Not advised; use carefully!! mostly you should use the methods below
 - `isConfirmedUser: boolean`: if they have confirmed their email
 - `isLoggedIn: boolean`: if the user is logged in
-- `signupUser(email: string, password: string, data: Object)`
+- `signupUser(email: string, password: string, data: Object, directLogin: boolean = true)`
+  - `directLogin` will internally set state to the newly created user
+  - `isConfirmedUser` will be false
+  - `isLoggedIn` will be true
+  - setting `directLogin` to false won't trigger the state
 - `loginUser(email: string, password: string, remember: boolean = true)` - we default the `remember` term to `true` since you'll usually want to remember the session in localStorage. set it to false if you need to
 - `logoutUser()`
 - `requestPasswordRecovery(email: string)`
