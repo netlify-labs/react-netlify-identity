@@ -221,11 +221,15 @@ export function useNetlifyIdentity(
         throw new Error(errors.tokenMissingOrInvalid);
       }
 
-      return goTrueInstance.recover(param.token, remember).then(user => {
-        // clean up consumed token
-        setParam(defaultParam);
-        return _setUser(user);
-      });
+      return goTrueInstance
+        .recover(param.token, remember)
+        .then(user => {
+          return _setUser(user);
+        })
+        .finally(() => {
+          // clean up consumed token
+          setParam(defaultParam);
+        });
     },
     [goTrueInstance, _setUser, param]
   );
