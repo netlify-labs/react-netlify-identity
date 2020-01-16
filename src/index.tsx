@@ -62,7 +62,7 @@ export type ReactNetlifyIdentityAPI = {
   logoutUser: () => MaybeUserPromise;
   requestPasswordRecovery: (email: string) => Promise<void>;
   recoverAccount: (remember?: boolean) => MaybeUserPromise;
-  updateUser: (fields: { data: object }) => MaybeUserPromise;
+  updateUser: (fields: object) => MaybeUserPromise;
   getFreshJWT: () => Promise<string>;
   authedFetch: {
     get: (endpoint: string, obj?: {}) => Promise<any>;
@@ -235,13 +235,13 @@ export function useNetlifyIdentity(
   );
 
   const updateUser = useCallback(
-    (fields: { data: object }) => {
+    (fields: object) => {
       if (!user) {
         throw new Error(errors.noUserFound);
       }
 
       return user!
-        .update(fields) // e.g. { data: { email: "example@example.com", password: "password" } }
+        .update(fields) // e.g. { email: "example@example.com", password: "password" }
         .then(_setUser);
     },
     [user]

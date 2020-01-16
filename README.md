@@ -52,7 +52,7 @@ yarn add react-netlify-identity
 - `loginUser(email: string, password: string, remember: boolean = true)` - we default the `remember` term to `true` since you'll usually want to remember the session in localStorage. set it to false if you need to
 - `logoutUser()`
 - `requestPasswordRecovery(email: string)`
-- `updateUser(fields: { data: object })`
+- `updateUser(fields: object)`: see [updateUser @ gotrue-js](https://github.com/netlify/gotrue-js#update-a-user)
 - `getFreshJWT()`
 - `authedFetch(endpoint: string, obj: RequestInit = {})` a thin axios-like wrapper over `fetch` that has the user's JWT attached, for convenience pinging Netlify Functions with Netlify Identity
 - `param: TokenParam`
