@@ -163,6 +163,9 @@ export function useNetlifyIdentity(
   // https://react-netlify-identity.netlify.com/login#access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTY0ODY3MjEsInN1YiI6ImNiZjY5MTZlLTNlZGYtNGFkNS1iOTYzLTQ4ZTY2NDcyMDkxNyIsImVtYWlsIjoic2hhd250aGUxQGdtYWlsLmNvbSIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImdpdGh1YiJ9LCJ1c2VyX21ldGFkYXRhIjp7ImF2YXRhcl91cmwiOiJodHRwczovL2F2YXRhcnMxLmdpdGh1YnVzZXJjb250ZW50LmNvbS91LzY3NjQ5NTc_dj00IiwiZnVsbF9uYW1lIjoic3d5eCJ9fQ.E8RrnuCcqq-mLi1_Q5WHJ-9THIdQ3ha1mePBKGhudM0&expires_in=3600&refresh_token=OyA_EdRc7WOIVhY7RiRw5w&token_type=bearer
   /******* external oauth */
 
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/index.js#L71
+   */
   const loginProvider = useCallback(
     (provider: Provider) => {
       const url = goTrueInstance.loginExternalUrl(provider);
@@ -171,6 +174,9 @@ export function useNetlifyIdentity(
     [goTrueInstance]
   );
 
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/index.js#L92
+   */
   const acceptInviteExternalUrl = useCallback(
     (provider: Provider) => {
       if (!param.token || param.type !== 'invite') {
@@ -187,6 +193,9 @@ export function useNetlifyIdentity(
   );
 
   /******* email auth */
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/index.js#L50
+   */
   const signupUser = useCallback(
     (
       email: string,
@@ -204,17 +213,26 @@ export function useNetlifyIdentity(
     [goTrueInstance, _setUser]
   );
 
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/index.js#L57
+   */
   const loginUser = useCallback(
     (email: string, password: string, remember: boolean = true) =>
       goTrueInstance.login(email, password, remember).then(_setUser),
     [goTrueInstance, _setUser]
   );
 
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/index.js#L80
+   */
   const requestPasswordRecovery = useCallback(
     (email: string) => goTrueInstance.requestPasswordRecovery(email),
     [goTrueInstance]
   );
 
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/index.js#L87
+   */
   const recoverAccount = useCallback(
     (remember?: boolean) => {
       if (!param.token || param.type !== 'recovery') {
@@ -234,6 +252,9 @@ export function useNetlifyIdentity(
     [goTrueInstance, _setUser, param]
   );
 
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/user.js#L54
+   */
   const updateUser = useCallback(
     (fields: object) => {
       if (!user) {
@@ -247,6 +268,9 @@ export function useNetlifyIdentity(
     [user]
   );
 
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/user.js#L63
+   */
   const getFreshJWT = useCallback(() => {
     if (!user) {
       throw new Error(errors.noUserFound);
@@ -255,6 +279,9 @@ export function useNetlifyIdentity(
     return user.jwt();
   }, [user]);
 
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/user.js#L71
+   */
   const logoutUser = useCallback(() => {
     if (!user) {
       throw new Error(errors.noUserFound);
