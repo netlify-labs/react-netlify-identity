@@ -12,13 +12,11 @@ Three demos:
 - [example with Reach Router](https://github.com/sw-yx/react-netlify-identity/tree/master/examples/example-reach-router) with [a demo hosted here](https://react-netlify-identity.netlify.com) and [deployed logs here](https://app.netlify.com/sites/react-netlify-identity/deploys)
 - [example with React Router](https://github.com/sw-yx/react-netlify-identity/tree/master/examples/example-react-router) with [a demo hosted here](https://react-netlify-identity-example.netlify.com)
 
-
 **This library is not officially maintained by Netlify.** This is written by swyx for his own use (and others with like minds 😎) and will be maintained as a personal project unless formally adopted by Netlify. See below for official alternatives.
 
 ## Blogposts
 
 - [Add Netlify Identity Authentication to any React App in 5 minutes with React Context, Hooks and Suspense](https://dev.to/swyx/add-netlify-identity-authentication-to-any-react-app-in-5-minutes-with-react-context-hooks-and-suspense-5gci)
-
 
 ## List of Alternatives
 
@@ -51,13 +49,19 @@ yarn add react-netlify-identity
 - `isConfirmedUser: boolean`: if they have confirmed their email
 - `isLoggedIn: boolean`: if the user is logged in
 - `signupUser(email: string, password: string, data: Object)`
-- `loginUser(email: string, password: string, remember: Boolean)` - we default the `remember` term to `true` since you'll usually want to remember the session in localStorage. set it to false if you need to
+- `loginUser(email: string, password: string, remember: boolean = true)` - we default the `remember` term to `true` since you'll usually want to remember the session in localStorage. set it to false if you need to
 - `logoutUser()`
 - `requestPasswordRecovery(email: string)`
-- `recoverAccount(token: string, remember?: boolean | undefined)`
 - `updateUser(fields: { data: object })`
 - `getFreshJWT()`
-- `authedFetch(endpoint: string, obj = {})` (a thin axios-like wrapper over `fetch` that has the user's JWT attached, for convenience pinging Netlify Functions with Netlify Identity)
+- `authedFetch(endpoint: string, obj: RequestInit = {})` a thin axios-like wrapper over `fetch` that has the user's JWT attached, for convenience pinging Netlify Functions with Netlify Identity
+- `param: TokenParam`
+  - a token exposing Netlify tokens a dev has to implement the actions for; namely `invite`, `recovery`, `email_change` and `access_denied`
+  - for further reference, please check the [type definition](https://github.com/sw-yx/react-netlify-identity/tree/master/src/token.ts)
+  - implementation for a Recovery Example below
+  - **Important:** tokens this package exposes no methods for are automatically handled and will not be passed down - see [runRoutes implementation](https://github.com/sw-yx/react-netlify-identity/master/src/runRoutes.tsx)
+  - if you don't want this behaviour (added [here](https://github.com/sw-yx/react-netlify-identity/issues/12) in v.0.1.8), pass `runRoutes={false}` to the exposed hook
+- `recoverAccount(remember?: boolean)`:
 
 ```tsx
 import React from 'react';
@@ -89,9 +93,11 @@ function Login() {
   const { loginUser, signupUser } = useIdentityContext();
   const formRef = React.useRef();
   const [msg, setMsg] = React.useState('');
+
   const signup = () => {
     const email = formRef.current.email.value;
     const password = formRef.current.password.value;
+
     signupUser(email, password)
       .then(user => {
         console.log('Success! Signed up', user);
@@ -99,6 +105,7 @@ function Login() {
       })
       .catch(err => console.error(err) || setMsg('Error: ' + err.message));
   };
+
   return (
     <form
       ref={formRef}
@@ -189,6 +196,81 @@ function Dashboard() {
 
 </details>
 
+<details>
+<summary>
+<h3>
+  How to handle a Recovery Action (since v0.2)
+</h3>
+</summary>
+
+Of course you can alternatively inline this logic into app.
+
+```tsx
+import { useIdentityContext } from 'react-netlify-identity';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  useLocation,
+  useHistory,
+} from 'react-router-dom';
+
+export default function App() {
+  const { isLoggedIn } = useIdentityContext();
+
+  return (
+    <Router>
+      <CatchNetlifyRecoveryNullComponent />
+      <Switch>
+        {isLoggedIn ? (
+          <>
+            <Route path="/dashboard" exact component={DashboardPage} />
+            <Route component={() => <Redirect to="/dashbard" />} />
+          </>
+        ) : (
+          <>
+            <Route path="/" exact component={LandingPage} />
+            <Route path="/register" exact component={RegisterPage} />
+            <Route path="/login" exact component={LoginPage} />
+            {/* etc */}
+            <Route path="/recovery" exact component={RecoveryPage} />
+            <Route component={() => <Redirect to="/" />} />
+          </>
+        )}
+      </Switch>
+    </Router>
+  );
+}
+
+function CatchNetlifyRecoveryNullComponent() {
+  const {
+    param: { token, type },
+  } = useIdentityContext();
+  const { replace } = useHistory();
+  const { pathname } = useLocation();
+
+  // important to check for the current pathname here because else you land
+  // in a infinite loop
+  if (token && type === 'recovery' && pathname === '/') {
+    replace(`/recovery`, { token });
+  }
+
+  return null;
+}
+
+function RecoveyPage() {
+  const {
+    location: { state },
+  } = useHistory();
+  // this state _might_ not be needed, it was needed in my specific implementation
+  const [token] = useState(state?.token);
+
+  return null; // do something with the token
+}
+```
+
+</details>
+
 ## Lower level API: `useNetlifyIdentity`
 
 If you'd like to handle your own context yourself, you can use this library as a hook as well:
@@ -200,8 +282,6 @@ function useNetlifyIdentity(
   enableRunRoutes: boolean = true
 ): ReactNetlifyIdentityAPI;
 ```
-
-the library watches for and handles confirmation routes by default. If you don't like this, pass `enableRunRoutes: false`. This was added here https://github.com/sw-yx/react-netlify-identity/issues/12 in v0.1.8
 
 ## License
 
