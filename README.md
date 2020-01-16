@@ -57,11 +57,11 @@ yarn add react-netlify-identity
 - `authedFetch(endpoint: string, obj: RequestInit = {})` a thin axios-like wrapper over `fetch` that has the user's JWT attached, for convenience pinging Netlify Functions with Netlify Identity
 - `param: TokenParam`
   - a token exposing Netlify tokens a dev has to implement the actions for; namely `invite`, `recovery`, `email_change` and `access_denied`
-  - for further reference, please check the [type definition](https://github.com/sw-yx/react-netlify-identity/tree/master/src/token.ts)
-  - implementation for a Recovery Example below
   - **Important:** tokens this package exposes no methods for are automatically handled and will not be passed down - see [runRoutes implementation](https://github.com/sw-yx/react-netlify-identity/master/src/runRoutes.tsx)
   - if you don't want this behaviour (added [here](https://github.com/sw-yx/react-netlify-identity/issues/12) in v.0.1.8), pass `runRoutes={false}` to the exposed hook
-- `recoverAccount(remember?: boolean)`:
+  - for further reference, please check the [type definition](https://github.com/sw-yx/react-netlify-identity/tree/master/src/token.ts)
+  - an example implementation for a Recovery process can be found below
+- `recoverAccount(remember?: boolean)`: verifies and consumes the recovery token caught by `runRoutes`, sets user on success
 
 ```tsx
 import React from 'react';
@@ -258,14 +258,14 @@ function CatchNetlifyRecoveryNullComponent() {
   return null;
 }
 
-function RecoveyPage() {
+function RecoveryPage() {
   const {
     location: { state },
   } = useHistory();
   // this state _might_ not be needed, it was needed in my specific implementation
   const [token] = useState(state?.token);
 
-  return null; // do something with the token
+  return null; // set new password in a form and call updateUser
 }
 ```
 
