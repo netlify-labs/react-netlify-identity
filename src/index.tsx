@@ -74,7 +74,10 @@ export type ReactNetlifyIdentityAPI = {
   _goTrueInstance: GoTrue;
   _url: string;
   loginProvider: (provider: Provider) => void;
-  acceptInviteExternalUrl: (provider: Provider) => string;
+  acceptInviteExternalUrl: (
+    provider: Provider,
+    autoRedirect: boolean
+  ) => void | string;
   settings: Settings;
   param: TokenParam;
 };
@@ -179,7 +182,7 @@ export function useNetlifyIdentity(
    * @see https://github.com/netlify/gotrue-js/blob/master/src/index.js#L92
    */
   const acceptInviteExternalUrl = useCallback(
-    (provider: Provider) => {
+    (provider: Provider, autoRedirect: boolean = true) => {
       if (!param.token || param.type !== 'invite') {
         throw new Error(errors.tokenMissingOrInvalid);
       }
@@ -187,6 +190,11 @@ export function useNetlifyIdentity(
       const url = goTrueInstance.acceptInviteExternalUrl(provider, param.token);
       // clean up consumed token
       setParam(defaultParam);
+
+      if (autoRedirect) {
+        window.location.href = url;
+        return;
+      }
 
       return url;
     },
