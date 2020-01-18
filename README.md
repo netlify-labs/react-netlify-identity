@@ -59,13 +59,16 @@ yarn add react-netlify-identity
 - `updateUser(fields: object)`: see [updateUser @ gotrue-js](https://github.com/netlify/gotrue-js#update-a-user)
 - `getFreshJWT()`
 - `authedFetch(endpoint: string, obj: RequestInit = {})` a thin axios-like wrapper over `fetch` that has the user's JWT attached, for convenience pinging Netlify Functions with Netlify Identity
+- `recoverAccount(remember?: boolean)`: verifies and consumes the recovery token caught by `runRoutes`, sets user on success
 - `param: TokenParam`
   - a token exposing Netlify tokens a dev has to implement the actions for; namely `invite`, `recovery`, `email_change` and `access_denied`
-  - **Important:** tokens this package exposes no methods for are automatically handled and will not be passed down - see [runRoutes implementation](https://github.com/sw-yx/react-netlify-identity/master/src/runRoutes.tsx)
+  - **important:** tokens this package exposes no methods for are automatically handled and will not be passed down - see [runRoutes implementation](https://github.com/sw-yx/react-netlify-identity/master/src/runRoutes.tsx)
   - if you don't want this behaviour (added [here](https://github.com/sw-yx/react-netlify-identity/issues/12) in v.0.1.8), pass `runRoutes={false}` to the exposed hook
   - for further reference, please check the [type definition](https://github.com/sw-yx/react-netlify-identity/tree/master/src/token.ts)
   - an example implementation for a Recovery process can be found below
-- `recoverAccount(remember?: boolean)`: verifies and consumes the recovery token caught by `runRoutes`, sets user on success
+- `verifyToken()`
+  - consumes & verifies TokenParam based on the type and tries to retrieve a valid user object
+  - devs duty to show password field to afterwards call `signupUser(user.email, newPassword)`
 
 ```tsx
 import React from 'react';

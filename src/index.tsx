@@ -41,8 +41,6 @@ const errors = {
   tokenMissingOrInvalid: 'either no token found or invalid for this purpose',
 };
 
-type MaybeUserPromise = Promise<User | undefined>;
-
 export type ReactNetlifyIdentityAPI = {
   user: User | undefined;
   /** not meant for normal use! you should mostly use one of the other exported methods to update the user instance */
@@ -54,29 +52,33 @@ export type ReactNetlifyIdentityAPI = {
     password: string,
     data: Object,
     directLogin: boolean
-  ) => MaybeUserPromise;
+  ) => Promise<User | undefined>;
   loginUser: (
     email: string,
     password: string,
     remember?: boolean
-  ) => MaybeUserPromise;
-  logoutUser: () => MaybeUserPromise;
+  ) => Promise<User | undefined>;
+  logoutUser: () => Promise<User | undefined>;
   requestPasswordRecovery: (email: string) => Promise<void>;
-  recoverAccount: (remember?: boolean) => MaybeUserPromise;
-  updateUser: (fields: object) => MaybeUserPromise;
-  getFreshJWT: () => Promise<string>;
+  recoverAccount: (remember?: boolean) => Promise<User | undefined>;
+  updateUser: (fields: object) => Promise<User | undefined>;
+  getFreshJWT: () => Promise<string> | undefined;
   authedFetch: {
-    get: (endpoint: string, obj?: {}) => Promise<any>;
-    post: (endpoint: string, obj?: {}) => Promise<any>;
-    put: (endpoint: string, obj?: {}) => Promise<any>;
-    delete: (endpoint: string, obj?: {}) => Promise<any>;
+    get: (endpoint: string, obj?: RequestInit) => Promise<any>;
+    post: (endpoint: string, obj?: RequestInit) => Promise<any>;
+    put: (endpoint: string, obj?: RequestInit) => Promise<any>;
+    delete: (endpoint: string, obj?: RequestInit) => Promise<any>;
   };
   _goTrueInstance: GoTrue;
   _url: string;
   loginProvider: (provider: Provider) => void;
-  acceptInviteExternalUrl: (provider: Provider) => string;
+  acceptInviteExternalUrl: (
+    provider: Provider,
+    autoRedirect: boolean
+  ) => string | undefined;
   settings: Settings;
   param: TokenParam;
+  verifyToken: () => Promise<User | undefined>;
 };
 
 const [_useIdentityContext, _IdentityCtxProvider] = createCtx<
@@ -179,19 +181,41 @@ export function useNetlifyIdentity(
    * @see https://github.com/netlify/gotrue-js/blob/master/src/index.js#L92
    */
   const acceptInviteExternalUrl = useCallback(
-    (provider: Provider) => {
+    (provider: Provider, autoRedirect: boolean = true) => {
       if (!param.token || param.type !== 'invite') {
-        throw new Error(errors.tokenMissingOrInvalid);
+        console.error(errors.tokenMissingOrInvalid);
+        return;
       }
 
       const url = goTrueInstance.acceptInviteExternalUrl(provider, param.token);
       // clean up consumed token
       setParam(defaultParam);
 
+      if (autoRedirect) {
+        window.location.href = url;
+        return;
+      }
+
       return url;
     },
     [goTrueInstance, param]
   );
+
+  /**
+   * @see https://github.com/netlify/gotrue-js/blob/master/src/index.js#L123
+   */
+  const verifyToken = useCallback(() => {
+    if (!param.type || !param.token) {
+      return Promise.reject(errors.tokenMissingOrInvalid);
+    }
+
+    return goTrueInstance.verify(param.type, param.token).then(user => {
+      // cleanup consumed token
+      setParam(defaultParam);
+
+      return user;
+    });
+  }, [goTrueInstance, param]);
 
   /******* email auth */
   /**
@@ -237,7 +261,7 @@ export function useNetlifyIdentity(
   const recoverAccount = useCallback(
     (remember?: boolean) => {
       if (!param.token || param.type !== 'recovery') {
-        throw new Error(errors.tokenMissingOrInvalid);
+        return Promise.reject(errors.tokenMissingOrInvalid);
       }
 
       return goTrueInstance
@@ -259,7 +283,7 @@ export function useNetlifyIdentity(
   const updateUser = useCallback(
     (fields: object) => {
       if (!user) {
-        throw new Error(errors.noUserFound);
+        return Promise.reject(errors.noUserFound);
       }
 
       return user!
@@ -274,7 +298,7 @@ export function useNetlifyIdentity(
    */
   const getFreshJWT = useCallback(() => {
     if (!user) {
-      throw new Error(errors.noUserFound);
+      return Promise.reject(errors.noUserFound);
     }
 
     return user.jwt();
@@ -285,18 +309,18 @@ export function useNetlifyIdentity(
    */
   const logoutUser = useCallback(() => {
     if (!user) {
-      throw new Error(errors.noUserFound);
+      return Promise.reject(errors.noUserFound);
     }
 
     return user.logout().then(() => _setUser(undefined));
   }, [user]);
 
-  const genericAuthedFetch = (method: string) => (
+  const genericAuthedFetch = (method: RequestInit['method']) => (
     endpoint: string,
     options: RequestInit = {}
   ) => {
     if (!user?.token?.access_token) {
-      throw new Error(errors.noUserTokenFound);
+      return Promise.reject(errors.noUserTokenFound);
     }
 
     const defaultObj = {
@@ -341,6 +365,7 @@ export function useNetlifyIdentity(
     acceptInviteExternalUrl,
     settings,
     param,
+    verifyToken,
   };
 }
 
