@@ -320,7 +320,7 @@ export function useNetlifyIdentity(
     options: RequestInit = {}
   ) => {
     if (!user?.token?.access_token) {
-      return Promise.reject(errors.noUserFound);
+      return Promise.reject(errors.noUserTokenFound);
     }
 
     const defaultObj = {
