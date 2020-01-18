@@ -32,9 +32,15 @@ export function runRoutes(
 
   const hash = document.location.hash.replace(hashReplace, '');
 
-  // todo: maybe replace with history.replaceState to completely clear the url?
-  // currently keeps #
-  document.location.hash = '';
+  try {
+    history.pushState(
+      '',
+      document.title,
+      window.location.pathname + window.location.search
+    );
+  } catch (_) {
+    window.location.href.substr(0, window.location.href.indexOf('#'));
+  }
 
   // earliest possible bail on any match
   if (hash.match(errorRoute)) {
