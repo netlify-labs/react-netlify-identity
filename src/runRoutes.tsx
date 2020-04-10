@@ -58,7 +58,7 @@ export function runRoutes(
 
     if (params.confirmation_token) {
       gotrue
-        .confirm(params.confirmation_token)
+        .confirm(params.confirmation_token, remember)
         .then(setUser)
         .catch(console.error);
 
