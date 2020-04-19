@@ -24,8 +24,7 @@
     "deploy": "gh-pages -d example/build"
   },
   "dependencies": {
-    "gotrue-js": "^0.9.25",
-    "tsdx": "^0.12.3"
+    "gotrue-js": "^0.9.25"
   },
   "peerDependencies": {
     "react": "^15.0.0 || ^16.0.0",
@@ -54,6 +53,7 @@
     "pretty-quick": "^2.0.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "tsdx": "^0.12.3",
     "typescript": "^3.7.4"
   },
   "files": [
