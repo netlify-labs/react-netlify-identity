@@ -7,7 +7,7 @@
   "repository": "https://www.github.com/sw-yx/react-netlify-identity",
   "main": "dist/index.js",
   "umd:main": "dist/react-netlify-identity.umd.production.js",
-  "module": "dist/react-netlify-identity.esm.production.js",
+  "module": "dist/react-netlify-identity.esm.js",
   "typings": "dist/index.d.ts",
   "jsnext:main": "dist/index.es.js",
   "engines": {
